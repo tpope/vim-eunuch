@@ -1,0 +1,58 @@
+*eunuch.txt*  File manipulation
+
+Author:  Tim Pope <http://tpo.pe/>
+License: Same terms as Vim itself (see |license|)
+
+This plugin is only available if 'compatible' is not set.
+
+INTRODUCTION                                    *eunuch*
+
+Vim sugar for the UNIX shell commands that need it the most.  Delete or rename
+a buffer and the underlying file at the same time.  Load a `find` or a
+`locate` into the quickfix list.  And so on.
+
+Since this plugin can delete files, you should be aware that this plugin can
+delete files.  Fat fingers beware.
+
+Bonus feature: if you create a new file that starts with #!, `chmod +x` will
+automatically be invoked on it when you first write the file.
+
+COMMANDS                                        *eunuch-commands*
+
+                                                *eunuch-:Unlink*
+:Unlink[!]              |:bdelete|, and, if successful, delete the file from
+			disk.  If a bang is given, it is passed along to
+			:bdelete.
+
+                                                *eunuch-:Remove*
+:Remove[!]		Alias for |:Unlink|.
+
+                                                *eunuch-:Rename*
+:Rename[!] {file}       Like |:saveas|, but delete the old file afterwards.
+
+                                                *eunuch-:Find*
+:Find[!] {args}         Run `find` and load the results into the quickfix
+			list.  Jump to the first result unless ! is given.
+
+                                                *eunuch-:Locate*
+:Locate[!] {args}       Run `locate` and load the results into the quickfix
+			list.  Jump to the first result unless ! is given.
+
+                                                *eunuch-:SudoWrite*
+:SudoWrite              Use sudo to write the file to disk.  Handy when you
+			forgot to use sudo to invoke Vim.
+
+                                                *eunuch-:W*
+:W                      Like |:wall|, but also writes files that haven't
+			changed.  This is useful to kick off build and test
+			suites (such as with watchr or guard).  It also
+                        doubles as a safe fallback for people who, like me,
+                        accidentally type :W instead of :w a lot.
+
+ABOUT                                           *eunuch-about*
+
+Grab the latest version or report a bug on GitHub:
+
+http://github.com/tpope/vim-eunuch
+
+ vim:tw=78:et:ft=help:norl:
