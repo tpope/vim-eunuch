@@ -9,7 +9,7 @@ include:
 * `:Find`: Run `find` and load the results into the quickfix list.
 * `:Locate`: Run `locate` and load the results into the quickfix list.
 * `:SudoWrite`: Write a privileged file with `sudo`.
-* `:W`: Write every open file.  Handy for kicking off tools like [guard][].
+* `:W`: Write every open window.  Handy for kicking off tools like [guard][].
 
 [guard]: https://github.com/guard/guard
 

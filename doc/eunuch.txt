@@ -43,9 +43,10 @@ COMMANDS                                        *eunuch-commands*
 			forgot to use sudo to invoke Vim.
 
                                                 *eunuch-:W*
-:W                      Like |:wall|, but also writes files that haven't
-			changed.  This is useful to kick off build and test
-			suites (such as with watchr or guard).  It also
+:W                      Like |:wall|, but for windows rather than buffers.
+                        It also writes files that haven't changed, which is
+                        useful for kicking off build and test suites (such as
+                        with watchr or guard).  Furthermore, it handily
                         doubles as a safe fallback for people who, like me,
                         accidentally type :W instead of :w a lot.
 
