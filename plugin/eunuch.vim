@@ -25,6 +25,8 @@ command! -bar -nargs=1 -bang -complete=file Rename :
       \ if s:file !=# expand('%:p') |
       \   if delete(s:file) |
       \     echoerr 'Failed to delete "'.s:file.'"' |
+      \   else |
+      \     bwipe # |
       \   endif |
       \ endif |
       \ unlet s:file
