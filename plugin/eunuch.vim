@@ -26,7 +26,7 @@ command! -bar -nargs=1 -bang -complete=file Rename :
       \   if delete(s:file) |
       \     echoerr 'Failed to delete "'.s:file.'"' |
       \   else |
-      \     bwipe # |
+      \     execute 'bwipe '.fnameescape(s:file) |
       \   endif |
       \ endif |
       \ unlet s:file
