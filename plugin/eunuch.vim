@@ -19,17 +19,19 @@ command! -bar -bang Unlink :
 command! -bar -bang Remove :Unlink<bang>
 
 command! -bar -nargs=1 -bang -complete=file Rename :
-      \ let s:file = expand('%:p') |
-      \ setlocal modified |
-      \ keepalt saveas<bang> <args> |
-      \ if s:file !=# expand('%:p') |
-      \   if delete(s:file) |
-      \     echoerr 'Failed to delete "'.s:file.'"' |
-      \   else |
-      \     execute 'bwipe '.fnameescape(s:file) |
+      \ let s:src = expand('%:p') |
+      \ if <bang>1 && filereadable(<q-args>) |
+      \   keepalt saveas <args> |
+      \ elseif rename(s:src, expand(<q-args>)) |
+      \   echoerr 'Failed to rename "'.s:src.'" to "'.<q-args>.'"' |
+      \ else |
+      \   setlocal modified |
+      \   keepalt saveas! <args> |
+      \   if s:src !=# expand('%:p') |
+      \     execute 'bwipe '.fnameescape(s:src) |
       \   endif |
       \ endif |
-      \ unlet s:file
+      \ unlet s:src
 
 command! -bar -bang -complete=file -nargs=+ Find   :call s:Grep(<q-bang>, <q-args>, 'find')
 command! -bar -bang -complete=file -nargs=+ Locate :call s:Grep(<q-bang>, <q-args>, 'locate')
