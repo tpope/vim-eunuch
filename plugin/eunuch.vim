@@ -20,8 +20,9 @@ command! -bar -bang Remove :Unlink<bang>
 
 command! -bar -nargs=1 -bang -complete=file Rename :
       \ let s:file = expand('%:p') |
+      \ let s:arg = <q-args> =~# '/' ? <q-args> : expand('%:h').'/'.<q-args> |
       \ setlocal modified |
-      \ keepalt saveas<bang> <args> |
+      \ execute 'keepalt saveas<bang> '.s:arg |
       \ if s:file !=# expand('%:p') |
       \   if delete(s:file) |
       \     echoerr 'Failed to delete "'.s:file.'"' |
@@ -29,7 +30,7 @@ command! -bar -nargs=1 -bang -complete=file Rename :
       \     execute 'bwipe '.fnameescape(s:file) |
       \   endif |
       \ endif |
-      \ unlet s:file
+      \ unlet s:file s:arg
 
 command! -bar -bang -complete=file -nargs=+ Find   :call s:Grep(<q-bang>, <q-args>, 'find')
 command! -bar -bang -complete=file -nargs=+ Locate :call s:Grep(<q-bang>, <q-args>, 'locate')
