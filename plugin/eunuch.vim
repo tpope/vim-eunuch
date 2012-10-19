@@ -40,6 +40,9 @@ command! -bar -nargs=1 -bang -complete=file Move :
 
 command! -bar -nargs=1 -bang -complete=file Rename :Move<bang> <args>
 
+command! -bar -nargs=1 Chmod :
+      \ echoerr split(system('chmod '.<q-args>.' -- '.shellescape(expand('%'))), "\n")[0] |
+
 command! -bar -bang -complete=file -nargs=+ Find   :call s:Grep(<q-bang>, <q-args>, 'find')
 command! -bar -bang -complete=file -nargs=+ Locate :call s:Grep(<q-bang>, <q-args>, 'locate')
 function! s:Grep(bang,args,prg) abort

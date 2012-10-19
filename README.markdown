@@ -6,6 +6,7 @@ include:
 * `:Unlink`: Delete a buffer and the file on disk simultaneously.
 * `:Remove`: Like `:Unlink`, but doesn't require a neckbeard.
 * `:Move`: Rename a buffer and the file on disk simultaneously.
+* `:Chmod`: Change the permissions of the current file.
 * `:Find`: Run `find` and load the results into the quickfix list.
 * `:Locate`: Run `locate` and load the results into the quickfix list.
 * `:SudoWrite`: Write a privileged file with `sudo`.
