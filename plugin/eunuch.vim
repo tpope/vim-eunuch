@@ -45,13 +45,18 @@ command! -bar -bang -complete=file -nargs=+ Locate :call s:Grep(<q-bang>, <q-arg
 function! s:Grep(bang,args,prg) abort
   let grepprg = &l:grepprg
   let grepformat = &l:grepformat
+  let shellpipe = &shellpipe
   try
     let &l:grepprg = a:prg
     setlocal grepformat=%f
+    if &shellpipe ==# '2>&1| tee' || &shellpipe ==# '|& tee'
+      let &shellpipe = "| tee"
+    endif
     execute 'grep'.a:bang.' '.a:args
   finally
     let &l:grepprg = grepprg
     let &l:grepformat = grepformat
+    let &shellpipe = shellpipe
   endtry
 endfunction
 
