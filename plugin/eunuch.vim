@@ -20,7 +20,7 @@ command! -bar -bang Remove :Unlink<bang>
 
 command! -bar -nargs=1 -bang -complete=file Rename :
       \ let s:src = expand('%:p') |
-      \ if <bang>1 && filereadable(<q-args>) |
+      \ if <bang>1 && filereadable(expand(<q-args>)) |
       \   keepalt saveas <args> |
       \ elseif rename(s:src, expand(<q-args>)) |
       \   echoerr 'Failed to rename "'.s:src.'" to "'.<q-args>.'"' |
