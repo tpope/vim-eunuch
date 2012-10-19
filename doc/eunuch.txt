@@ -21,11 +21,11 @@ COMMANDS                                        *eunuch-commands*
 
                                                 *eunuch-:Unlink*
 :Unlink[!]              |:bdelete|, and, if successful, delete the file from
-			disk.  If a bang is given, it is passed along to
-			:bdelete.
+                        disk.  If a bang is given, it is passed along to
+                        :bdelete.
 
                                                 *eunuch-:Remove*
-:Remove[!]		Alias for |:Unlink|.
+:Remove[!]              Alias for |:Unlink|.
 
                                                 *eunuch-:Move*
 :Move[!] {file}         Like |:saveas|, but delete the old file afterwards.
@@ -35,15 +35,15 @@ COMMANDS                                        *eunuch-commands*
 
                                                 *eunuch-:Find*
 :Find[!] {args}         Run `find` and load the results into the quickfix
-			list.  Jump to the first result unless ! is given.
+                        list.  Jump to the first result unless ! is given.
 
                                                 *eunuch-:Locate*
 :Locate[!] {args}       Run `locate` and load the results into the quickfix
-			list.  Jump to the first result unless ! is given.
+                        list.  Jump to the first result unless ! is given.
 
                                                 *eunuch-:SudoWrite*
 :SudoWrite              Use sudo to write the file to disk.  Handy when you
-			forgot to use sudo to invoke Vim.
+                        forgot to use sudo to invoke Vim.
 
                                                 *eunuch-:W*
 :W                      Like |:wall|, but for windows rather than buffers.
