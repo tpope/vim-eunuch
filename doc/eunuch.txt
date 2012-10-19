@@ -27,8 +27,11 @@ COMMANDS                                        *eunuch-commands*
                                                 *eunuch-:Remove*
 :Remove[!]		Alias for |:Unlink|.
 
+                                                *eunuch-:Move*
+:Move[!] {file}         Like |:saveas|, but delete the old file afterwards.
+
                                                 *eunuch-:Rename*
-:Rename[!] {file}       Like |:saveas|, but delete the old file afterwards.
+:Rename[!] {file}       Alias for |:Move|.
 
                                                 *eunuch-:Find*
 :Find[!] {args}         Run `find` and load the results into the quickfix

@@ -18,7 +18,7 @@ command! -bar -bang Unlink :
 
 command! -bar -bang Remove :Unlink<bang>
 
-command! -bar -nargs=1 -bang -complete=file Rename :
+command! -bar -nargs=1 -bang -complete=file Move :
       \ let s:src = expand('%:p') |
       \ let s:dst = expand(<q-args>) |
       \ if isdirectory(s:dst) |
@@ -37,6 +37,8 @@ command! -bar -nargs=1 -bang -complete=file Rename :
       \ endif |
       \ unlet s:src |
       \ unlet s:dst
+
+command! -bar -nargs=1 -bang -complete=file Rename :Move<bang> <args>
 
 command! -bar -bang -complete=file -nargs=+ Find   :call s:Grep(<q-bang>, <q-args>, 'find')
 command! -bar -bang -complete=file -nargs=+ Locate :call s:Grep(<q-bang>, <q-args>, 'locate')
