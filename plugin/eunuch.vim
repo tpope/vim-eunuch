@@ -77,7 +77,7 @@ function! s:W() abort
     let seen[bufnr('')] = 1
     write
   endif
-  tabdo windo if !&readonly && expand('%') !=# '' && !has_key(seen, bufnr('')) | silent write | let seen[bufnr('')] = 1 | endif
+  tabdo windo if !&readonly && &buftype =~# '^\%(acwrite\)\=$' && expand('%') !=# '' && !has_key(seen, bufnr('')) | silent write | let seen[bufnr('')] = 1 | endif
   execute 'tabnext '.tab
   execute win.'wincmd w'
 endfunction
