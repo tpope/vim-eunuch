@@ -59,6 +59,7 @@ command! -bar -nargs=1 -bang -complete=file Move :
       \   if s:src !=# expand('%:p') |
       \     execute 'bwipe '.s:fnameescape(s:src) |
       \   endif |
+      \   filetype detect |
       \ endif |
       \ unlet s:src |
       \ unlet s:dst |
