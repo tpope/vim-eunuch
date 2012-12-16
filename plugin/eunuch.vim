@@ -65,7 +65,7 @@ endfunction
 
 command! -bar SudoWrite :
       \ setlocal nomodified |
-      \ silent exe 'write !sudo tee % >/dev/null' |
+      \  exe (has('gui_running') ? '' : 'silent') 'write !sudo tee % >/dev/null' |
       \ let &modified = v:shell_error
 
 command! -bar W :call s:W()
