@@ -31,7 +31,8 @@ COMMANDS                                        *eunuch-commands*
 :Move[!] {file}         Like |:saveas|, but delete the old file afterwards.
 
                                                 *eunuch-:Rename*
-:Rename[!] {file}       Alias for |:Move|.
+:Rename[!] {file}       Like |:Move|, but relative to the current file's
+                        containing directory.
 
                                                 *eunuch-:Chmod*
 :Chmod {mode}           Change the permissions of the current file.
