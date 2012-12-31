@@ -34,7 +34,7 @@ COMMANDS                                        *eunuch-commands*
 :Rename[!] {file}       Alias for |:Move|.
 
                                                 *eunuch-:Chmod*
-:Chmod[!] {mode}        Change the permissions of the current file.
+:Chmod {mode}           Change the permissions of the current file.
 
                                                 *eunuch-:Find*
 :Find[!] {args}         Run `find` and load the results into the quickfix
