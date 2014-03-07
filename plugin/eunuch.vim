@@ -44,6 +44,13 @@ command! -bar -nargs=1 -bang -complete=file Move :
       \ unlet s:src |
       \ unlet s:dst
 
+" Adds :Trash command only for Mac OS X
+if has("unix")
+  if system('uname')=~'Darwin'
+    command! -bar -bang Trash :Move<bang> ~/.Trash | bdelete<bang>
+  endif
+endif
+
 function! s:Rename_complete(A, L, P) abort
   let sep = s:separator()
   let prefix = expand('%:p:h').sep
