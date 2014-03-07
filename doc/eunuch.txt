@@ -57,6 +57,9 @@ COMMANDS                                        *eunuch-commands*
                         doubles as a safe fallback for people who, like me,
                         accidentally type :W instead of :w a lot.
 
+                                                *eunuch-:Trash*
+:Trash[!]               (only in Mac OS X) Like :Unlink but moves file to Trash.
+
 ABOUT                                           *eunuch-about*
 
 Grab the latest version or report a bug on GitHub:

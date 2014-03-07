@@ -11,6 +11,7 @@ include:
 * `:Locate`: Run `locate` and load the results into the quickfix list.
 * `:SudoWrite`: Write a privileged file with `sudo`.
 * `:W`: Write every open window.  Handy for kicking off tools like [guard][].
+* `:Trash`: (Mac OS X only) Delete a buffer and move the file to Trash.t .
 
 [guard]: https://github.com/guard/guard
 
