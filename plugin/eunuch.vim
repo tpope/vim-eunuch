@@ -12,10 +12,9 @@ function! s:separator()
 endfunction
 
 command! -bar -bang Unlink :
-      \ let v:errmsg = '' |
       \ let s:file = fnamemodify(bufname(<q-args>),':p') |
       \ execute 'bdelete<bang>' |
-      \ if v:errmsg ==# '' && delete(s:file) |
+      \ if !bufloaded(s:file) && delete(s:file) |
       \   echoerr 'Failed to delete "'.s:file.'"' |
       \ endif |
       \ unlet s:file
@@ -110,8 +109,10 @@ augroup shebang_chmod
         \ endif
   autocmd BufWritePost,FileWritePost *
         \ if exists('b:chmod_post') && executable('chmod') |
+        \   let s:autoread = &autoread |
+        \   set autoread |
         \   silent! execute '!chmod '.b:chmod_post.' "<afile>"' |
-        \   unlet b:chmod_post |
+        \   unlet b:chmod_post s:autoread |
         \ endif
 augroup END
 
