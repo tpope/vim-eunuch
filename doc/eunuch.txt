@@ -1,5 +1,6 @@
 *eunuch.txt*  File manipulation
-Author:  Tim Pope <http://tpo.pe/> License: Same terms as Vim itself (see |license|)
+Author:  Tim Pope <http://tpo.pe/>
+License: Same terms as Vim itself (see |license|)
 
 This plugin is only available if 'compatible' is not set.
 
