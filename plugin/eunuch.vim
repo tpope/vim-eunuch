@@ -78,10 +78,36 @@ function! s:Grep(bang,args,prg) abort
   endtry
 endfunction
 
-command! -bar SudoWrite :
-      \ setlocal nomodified |
-      \  exe (has('gui_running') ? '' : 'silent') 'write !sudo tee % >/dev/null' |
-      \ let &modified = v:shell_error
+function! s:SudoSetup(file) abort
+  if !filereadable(a:file) && !exists('#BufReadCmd#'.fnameescape(a:file))
+    execute 'autocmd BufReadCmd ' fnameescape(a:file) 'call s:SudoReadCmd()'
+  endif
+  if !filewritable(a:file) && !exists('#BufWriteCmd#'.fnameescape(a:file))
+    execute 'autocmd BufWriteCmd ' fnameescape(a:file) 'call s:SudoWriteCmd()'
+  endif
+endfunction
+
+function! s:SudoReadCmd() abort
+  silent %delete_
+  execute (has('gui_running') ? '' : 'silent') 'read !sudo cat %'
+  silent 1delete_
+  set nomodified
+endfunction
+
+function! s:SudoWriteCmd() abort
+  execute (has('gui_running') ? '' : 'silent') 'write !sudo tee % >/dev/null'
+  let &modified = v:shell_error
+endfunction
+
+command! -bar -bang -complete=file -nargs=? SudoEdit
+      \ call s:SudoSetup(fnamemodify(empty(<q-args>) ? expand('%') : <q-args>, ':p')) |
+      \ if !&modified || !empty(<q-args>) |
+      \   edit<bang> <args> |
+      \ endif
+
+command! -bar SudoWrite
+      \ call s:SudoSetup(expand('%:p')) |
+      \ write!
 
 command! -bar W :call s:W()
 function! s:W() abort

@@ -1,7 +1,5 @@
 *eunuch.txt*  File manipulation
-
-Author:  Tim Pope <http://tpo.pe/>
-License: Same terms as Vim itself (see |license|)
+Author:  Tim Pope <http://tpo.pe/> License: Same terms as Vim itself (see |license|)
 
 This plugin is only available if 'compatible' is not set.
 
@@ -45,9 +43,16 @@ COMMANDS                                        *eunuch-commands*
 :Locate[!] {args}       Run `locate` and load the results into the quickfix
                         list.  Jump to the first result unless ! is given.
 
+                                                *eunuch-:SudoEdit*
+:SudoEdit [file]        Edit a file using sudo.  This overrides any read
+                        permission issues, plus allows you to write the file
+                        with :w!.
+
                                                 *eunuch-:SudoWrite*
 :SudoWrite              Use sudo to write the file to disk.  Handy when you
-                        forgot to use sudo to invoke Vim.
+                        forgot to use sudo to invoke Vim.  This uses :SudoEdit
+                        internally, so after the first invocation you can
+                        subsequently use :w!.
 
                                                 *eunuch-:W*
 :W                      Like |:wall|, but for windows rather than buffers.
