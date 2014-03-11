@@ -109,10 +109,9 @@ augroup shebang_chmod
         \ endif
   autocmd BufWritePost,FileWritePost *
         \ if exists('b:chmod_post') && executable('chmod') |
-        \   let s:autoread = &autoread |
-        \   set autoread |
         \   silent! execute '!chmod '.b:chmod_post.' "<afile>"' |
-        \   unlet b:chmod_post s:autoread |
+        \   edit |
+        \   unlet b:chmod_post |
         \ endif
 augroup END
 
