@@ -10,7 +10,7 @@ include:
 * `:Find`: Run `find` and load the results into the quickfix list.
 * `:Locate`: Run `locate` and load the results into the quickfix list.
 * `:SudoWrite`: Write a privileged file with `sudo`.
-* `:SudoEdit`: Edit a priviledged file with `sudo`.
+* `:SudoEdit`: Edit a privileged file with `sudo`.
 * `:W`: Write every open window.  Handy for kicking off tools like [guard][].
 
 [guard]: https://github.com/guard/guard
