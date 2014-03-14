@@ -56,7 +56,7 @@ command! -bar -nargs=1 -bang -complete=custom,s:Rename_complete Rename
       \ Move<bang> %:h/<args>
 
 command! -bar -nargs=1 Chmod :
-      \ echoerr get(split(system('chmod '.<q-args>.' -- '.shellescape(expand('%'))), "\n"), 0, '') |
+      \ echoerr get(split(system('chmod '.<q-args>.' '.shellescape(expand('%'))), "\n"), 0, '') |
 
 command! -bar -bang -complete=file -nargs=+ Find   :call s:Grep(<q-bang>, <q-args>, 'find')
 command! -bar -bang -complete=file -nargs=+ Locate :call s:Grep(<q-bang>, <q-args>, 'locate')
@@ -103,6 +103,9 @@ command! -bar -bang -complete=file -nargs=? SudoEdit
       \ call s:SudoSetup(fnamemodify(empty(<q-args>) ? expand('%') : <q-args>, ':p')) |
       \ if !&modified || !empty(<q-args>) |
       \   edit<bang> <args> |
+      \ endif |
+      \ if empty(<q-args>) || expand('%:p') ==# fnamemodify(<q-args>, ':p') |
+      \   set noreadonly |
       \ endif
 
 command! -bar SudoWrite
