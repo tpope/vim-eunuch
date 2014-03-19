@@ -24,9 +24,12 @@ command! -bar -bang Remove :Unlink<bang>
 command! -bar -nargs=1 -bang -complete=file Move :
       \ let s:src = expand('%:p') |
       \ let s:dst = expand(<q-args>) |
-      \ if isdirectory(s:dst) |
+      \ if isdirectory(s:dst) || s:dst[-1:-1] =~# '[\\/]' |
       \   let s:dst .= (s:dst[-1:-1] =~# '[\\/]' ? '' : s:separator()) .
       \     fnamemodify(s:src, ':t') |
+      \ endif |
+      \ if !isdirectory(fnamemodify(s:dst, ':h')) |
+      \   call mkdir(fnamemodify(s:dst, ':h'), 'p') |
       \ endif |
       \ let s:dst = substitute(simplify(s:dst), '^\.\'.s:separator(), '', '') |
       \ if <bang>1 && filereadable(s:dst) |
