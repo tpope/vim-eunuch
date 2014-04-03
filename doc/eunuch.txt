@@ -36,6 +36,15 @@ COMMANDS                                        *eunuch-commands*
                                                 *eunuch-:Chmod*
 :Chmod {mode}           Change the permissions of the current file.
 
+                                                *eunuch-:Mkdir*
+:Mkdir {dir}            Create directory {dir} with |mkdir()|.
+
+:Mkdir! {dir}           Create directory {dir} with |mkdir()| passing the "p"
+                        argument.  This is like `mkdir -p`.
+
+:Mkdir[!]               With no argument, create the containing directory for
+                        the current file.
+
                                                 *eunuch-:Find*
 :Find[!] {args}         Run `find` and load the results into the quickfix
                         list.  Jump to the first result unless ! is given.

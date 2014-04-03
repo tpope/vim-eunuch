@@ -61,6 +61,12 @@ command! -bar -nargs=1 -bang -complete=custom,s:Rename_complete Rename
 command! -bar -nargs=1 Chmod :
       \ echoerr get(split(system('chmod '.<q-args>.' '.shellescape(expand('%'))), "\n"), 0, '') |
 
+command! -bar -bang -nargs=? Mkdir
+      \ call mkdir(empty(<q-args>) ? expand('%:h') : <q-args>, <bang>0 ? 'p' : '') |
+      \ if empty(<q-args>) |
+      \  silent keepalt execute 'file' fnameescape(expand('%')) |
+      \ endif
+
 command! -bar -bang -complete=file -nargs=+ Find   :call s:Grep(<q-bang>, <q-args>, 'find')
 command! -bar -bang -complete=file -nargs=+ Locate :call s:Grep(<q-bang>, <q-args>, 'locate')
 function! s:Grep(bang,args,prg) abort
