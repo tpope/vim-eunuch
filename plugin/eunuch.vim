@@ -7,6 +7,16 @@ if exists('g:loaded_eunuch') || &cp || v:version < 700
 endif
 let g:loaded_eunuch = 1
 
+function! s:fnameescape(string) abort
+  if exists('*fnameescape')
+    return fnameescape(a:string)
+  elseif a:string ==# '-'
+    return '\-'
+  else
+    return substitute(escape(a:string," \t\n*?[{`$\\%#'\"|!<"),'^[+>]','\\&','')
+  endif
+endfunction
+
 function! s:separator()
   return !exists('+shellslash') || &shellslash ? '/' : '\\'
 endfunction
@@ -33,14 +43,14 @@ command! -bar -nargs=1 -bang -complete=file Move :
       \ endif |
       \ let s:dst = substitute(simplify(s:dst), '^\.\'.s:separator(), '', '') |
       \ if <bang>1 && filereadable(s:dst) |
-      \   exe 'keepalt saveas '.fnameescape(s:dst) |
+      \   exe 'keepalt saveas '.s:fnameescape(s:dst) |
       \ elseif rename(s:src, s:dst) |
       \   echoerr 'Failed to rename "'.s:src.'" to "'.s:dst.'"' |
       \ else |
       \   setlocal modified |
-      \   exe 'keepalt saveas! '.fnameescape(s:dst) |
+      \   exe 'keepalt saveas! '.s:fnameescape(s:dst) |
       \   if s:src !=# expand('%:p') |
-      \     execute 'bwipe '.fnameescape(s:src) |
+      \     execute 'bwipe '.s:fnameescape(s:src) |
       \   endif |
       \ endif |
       \ unlet s:src |
@@ -64,7 +74,7 @@ command! -bar -nargs=1 Chmod :
 command! -bar -bang -nargs=? Mkdir
       \ call mkdir(empty(<q-args>) ? expand('%:h') : <q-args>, <bang>0 ? 'p' : '') |
       \ if empty(<q-args>) |
-      \  silent keepalt execute 'file' fnameescape(expand('%')) |
+      \  silent keepalt execute 'file' s:fnameescape(expand('%')) |
       \ endif
 
 command! -bar -bang -complete=file -nargs=+ Find   :call s:Grep(<q-bang>, <q-args>, 'find')
@@ -88,12 +98,12 @@ function! s:Grep(bang,args,prg) abort
 endfunction
 
 function! s:SudoSetup(file) abort
-  if !filereadable(a:file) && !exists('#BufReadCmd#'.fnameescape(a:file))
-    execute 'autocmd BufReadCmd ' fnameescape(a:file) 'call s:SudoReadCmd()'
+  if !filereadable(a:file) && !exists('#BufReadCmd#'.s:fnameescape(a:file))
+    execute 'autocmd BufReadCmd ' s:fnameescape(a:file) 'call s:SudoReadCmd()'
   endif
-  if !filewritable(a:file) && !exists('#BufWriteCmd#'.fnameescape(a:file))
-    execute 'autocmd BufReadPost ' fnameescape(a:file) 'set noreadonly'
-    execute 'autocmd BufWriteCmd ' fnameescape(a:file) 'call s:SudoWriteCmd()'
+  if !filewritable(a:file) && !exists('#BufWriteCmd#'.s:fnameescape(a:file))
+    execute 'autocmd BufReadPost ' s:fnameescape(a:file) 'set noreadonly'
+    execute 'autocmd BufWriteCmd ' s:fnameescape(a:file) 'call s:SudoWriteCmd()'
   endif
 endfunction
 
@@ -125,9 +135,9 @@ function! s:SudoEditInit() abort
   let files = split($SUDO_COMMAND, ' ')[1:-1]
   if len(files) ==# argc()
     for i in range(argc())
-      execute 'autocmd BufEnter' fnameescape(argv(i))
+      execute 'autocmd BufEnter' s:fnameescape(argv(i))
             \ 'if empty(&filetype) || &filetype ==# "conf"'
-            \ '|doautocmd filetypedetect BufReadPost '.fnameescape(files[i])
+            \ '|doautocmd filetypedetect BufReadPost' s:fnameescape(files[i])
             \ '|endif'
     endfor
   endif
