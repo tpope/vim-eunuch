@@ -121,6 +121,21 @@ command! -bar SudoWrite
       \ call s:SudoSetup(expand('%:p')) |
       \ write!
 
+function! s:SudoEditInit() abort
+  let files = split($SUDO_COMMAND, ' ')[1:-1]
+  if len(files) ==# argc()
+    for i in range(argc())
+      execute 'autocmd BufEnter' fnameescape(argv(i))
+            \ 'if empty(&filetype) || &filetype ==# "conf"'
+            \ '|doautocmd filetypedetect BufReadPost '.fnameescape(files[i])
+            \ '|endif'
+    endfor
+  endif
+endfunction
+if $SUDO_COMMAND =~# '^sudoedit '
+  call s:SudoEditInit()
+endif
+
 command! -bar W :call s:W()
 function! s:W() abort
   let tab = tabpagenr()
