@@ -92,6 +92,7 @@ function! s:SudoSetup(file) abort
     execute 'autocmd BufReadCmd ' fnameescape(a:file) 'call s:SudoReadCmd()'
   endif
   if !filewritable(a:file) && !exists('#BufWriteCmd#'.fnameescape(a:file))
+    execute 'autocmd BufReadPost ' fnameescape(a:file) 'set noreadonly'
     execute 'autocmd BufWriteCmd ' fnameescape(a:file) 'call s:SudoWriteCmd()'
   endif
 endfunction
@@ -112,8 +113,7 @@ command! -bar -bang -complete=file -nargs=? SudoEdit
       \ call s:SudoSetup(fnamemodify(empty(<q-args>) ? expand('%') : <q-args>, ':p')) |
       \ if !&modified || !empty(<q-args>) |
       \   edit<bang> <args> |
-      \ endif |
-      \ if empty(<q-args>) || expand('%:p') ==# fnamemodify(<q-args>, ':p') |
+      \ else |
       \   set noreadonly |
       \ endif
 
