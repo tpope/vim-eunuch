@@ -109,13 +109,13 @@ endfunction
 
 function! s:SudoReadCmd() abort
   silent %delete_
-  execute (has('gui_running') ? '' : 'silent') 'read !sudo cat %'
+  execute (has('gui_running') ? '' : 'silent') 'read !env SUDO_EDITOR=cat sudo -e %'
   silent 1delete_
   set nomodified
 endfunction
 
 function! s:SudoWriteCmd() abort
-  execute (has('gui_running') ? '' : 'silent') 'write !sudo tee % >/dev/null'
+  execute (has('gui_running') ? '' : 'silent') 'write !env SUDO_EDITOR=tee sudo -e % >/dev/null'
   let &modified = v:shell_error
 endfunction
 
