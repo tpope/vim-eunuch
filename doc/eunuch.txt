@@ -13,8 +13,11 @@ a buffer and the underlying file at the same time.  Load a `find` or a
 Since this plugin can delete files, you should be aware that this plugin can
 delete files.  Fat fingers beware.
 
-Bonus feature: if you create a new file that starts with #!, `chmod +x` will
-automatically be invoked on it when you first write the file.
+If you create a new file that starts with #!, `chmod +x` will automatically be
+invoked on it when you first write the file.
+
+File type detection for files edited with `sudoedit` and `sudo -e` happens
+based on the original file name.
 
 COMMANDS                                        *eunuch-commands*
 
