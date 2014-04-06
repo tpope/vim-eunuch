@@ -123,7 +123,8 @@ command! -bar -bang -complete=file -nargs=? SudoEdit
       \ call s:SudoSetup(fnamemodify(empty(<q-args>) ? expand('%') : <q-args>, ':p')) |
       \ if !&modified || !empty(<q-args>) |
       \   edit<bang> <args> |
-      \ else |
+      \ endif |
+      \ if empty(<q-args>) || expand('%:p') ==# fnamemodify(<q-args>, ':p') |
       \   set noreadonly |
       \ endif
 
