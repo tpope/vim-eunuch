@@ -147,8 +147,11 @@ if $SUDO_COMMAND =~# '^sudoedit '
   call s:SudoEditInit()
 endif
 
-command! -bar W :call s:W()
-function! s:W() abort
+command! -bar Wall call s:Wall()
+if !exists(':W') !=# 2
+  command! -bar W Wall
+endif
+function! s:Wall() abort
   let tab = tabpagenr()
   let win = winnr()
   let seen = {}

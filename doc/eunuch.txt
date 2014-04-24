@@ -67,9 +67,9 @@ COMMANDS                                        *eunuch-commands*
                         internally, so after the first invocation you can
                         subsequently use :w!.
 
-                                                *eunuch-:W*
-:W                      Like |:wall|, but for windows rather than buffers.
-                        It also writes files that haven't changed, which is
+                                                *eunuch-:Wall* *eunuch-:W*
+:Wall                   Like |:wall|, but for windows rather than buffers.
+:W                      It also writes files that haven't changed, which is
                         useful for kicking off build and test suites (such as
                         with watchr or guard).  Furthermore, it handily
                         doubles as a safe fallback for people who, like me,

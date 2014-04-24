@@ -10,7 +10,7 @@ include:
 * `:Mkdir`: Create a directory, defaulting to the parent of the current file.
 * `:Find`: Run `find` and load the results into the quickfix list.
 * `:Locate`: Run `locate` and load the results into the quickfix list.
-* `:W`: Write every open window.  Handy for kicking off tools like [guard][].
+* `:Wall`: Write every open window.  Handy for kicking off tools like [guard][].
 * `:SudoWrite`: Write a privileged file with `sudo`.
 * `:SudoEdit`: Edit a privileged file with `sudo`.
 * File type detection for `sudo -e` is based on original file name.
