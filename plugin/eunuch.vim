@@ -147,7 +147,12 @@ if $SUDO_COMMAND =~# '^sudoedit '
   call s:SudoEditInit()
 endif
 
-command! -bar Wall call s:Wall()
+command! -bar -nargs=? Wall
+      \ if empty(<q-args>) |
+      \   call s:Wall() |
+      \ else |
+      \   call system('wall', <q-args>) |
+      \ endif
 if !exists(':W') !=# 2
   command! -bar W Wall
 endif
