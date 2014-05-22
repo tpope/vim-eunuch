@@ -179,7 +179,7 @@ augroup shebang_chmod
         \     let b:chmod_post = '+x' |
         \   endif |
         \ endif
-  autocmd BufWritePost,FileWritePost *
+  autocmd BufWritePost,FileWritePost * nested
         \ if exists('b:chmod_post') && executable('chmod') |
         \   silent! execute '!chmod '.b:chmod_post.' "<afile>"' |
         \   edit |
