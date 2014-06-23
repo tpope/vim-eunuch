@@ -77,8 +77,8 @@ command! -bar -bang -nargs=? -complete=dir Mkdir
       \  silent keepalt execute 'file' s:fnameescape(expand('%')) |
       \ endif
 
-command! -bar -bang -complete=file -nargs=+ Find   :call s:Grep(<q-bang>, <q-args>, 'find')
-command! -bar -bang -complete=file -nargs=+ Locate :call s:Grep(<q-bang>, <q-args>, 'locate')
+command! -bar -bang -complete=file -nargs=+ Find   exe s:Grep(<q-bang>, <q-args>, 'find')
+command! -bar -bang -complete=file -nargs=+ Locate exe s:Grep(<q-bang>, <q-args>, 'locate')
 function! s:Grep(bang,args,prg) abort
   let grepprg = &l:grepprg
   let grepformat = &l:grepformat
@@ -89,7 +89,12 @@ function! s:Grep(bang,args,prg) abort
     if &shellpipe ==# '2>&1| tee' || &shellpipe ==# '|& tee'
       let &shellpipe = "| tee"
     endif
-    execute 'grep'.a:bang.' '.a:args
+    execute 'grep! '.a:args
+    if empty(a:bang) && !empty(getqflist())
+      return 'cfirst'
+    else
+      return ''
+    endif
   finally
     let &l:grepprg = grepprg
     let &l:grepformat = grepformat
