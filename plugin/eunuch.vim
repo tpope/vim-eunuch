@@ -21,15 +21,22 @@ function! s:separator()
   return !exists('+shellslash') || &shellslash ? '/' : '\\'
 endfunction
 
-command! -bar -bang Unlink :
+command! -bar -bang Unlink
+      \ if <bang>1 && &modified |
+      \   edit |
+      \ elseif delete(expand('%')) |
+      \   echoerr 'Failed to delete "'.expand('%').'"' |
+      \ else |
+      \   edit! |
+      \ endif
+
+command! -bar -bang Remove
       \ let s:file = fnamemodify(bufname(<q-args>),':p') |
       \ execute 'bdelete<bang>' |
       \ if !bufloaded(s:file) && delete(s:file) |
       \   echoerr 'Failed to delete "'.s:file.'"' |
       \ endif |
       \ unlet s:file
-
-command! -bar -bang Remove :Unlink<bang>
 
 command! -bar -nargs=1 -bang -complete=file Move :
       \ let s:src = expand('%:p') |

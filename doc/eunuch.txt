@@ -21,13 +21,14 @@ based on the original file name.
 
 COMMANDS                                        *eunuch-commands*
 
-                                                *eunuch-:Unlink*
-:Unlink[!]              |:bdelete|, and, if successful, delete the file from
+                                                *eunuch-:Remove*
+:Remove[!]              |:bdelete|, and, if successful, delete the file from
                         disk.  If a bang is given, it is passed along to
                         :bdelete.
 
-                                                *eunuch-:Remove*
-:Remove[!]              Alias for |:Unlink|.
+                                                *eunuch-:Unlink*
+:Unlink[!]              Delete the file from disk and reload the buffer.
+                        If a bang is given, discard unsaved changes.
 
                                                 *eunuch-:Move*
 :Move[!] {file}         Like |:saveas|, but delete the old file afterwards.
