@@ -77,7 +77,6 @@ function! s:Rename_complete(A, L, P) abort
   let sep = s:separator()
   let prefix = expand('%:p:h').sep
   let files = split(glob(prefix.a:A.'*'), "\n")
-  call filter(files, 'simplify(v:val) !=# simplify(expand("%:p"))')
   call map(files, 'v:val[strlen(prefix) : -1] . (isdirectory(v:val) ? sep : "")')
   return join(files + ['..'.s:separator()], "\n")
 endfunction
