@@ -38,6 +38,14 @@ command! -bar -bang Remove
       \ endif |
       \ unlet s:file
 
+command! -bar RmSwp
+      \ let s:file = bufname(<q-args>) |
+      \ let s:file = '.'.s:file.'.swp' |
+      \ if delete(s:file) |
+      \   echoerr 'Failed to delete "'.s:file.'"' |
+      \ endif |
+      \ unlet s:file
+
 command! -bar -nargs=1 -bang -complete=file Move :
       \ let s:src = expand('%:p') |
       \ let s:dst = expand(<q-args>) |
