@@ -26,6 +26,9 @@ COMMANDS                                        *eunuch-commands*
                         disk.  If a bang is given, it is passed along to
                         :bdelete.
 
+                                                *eunuch-:RmSwp*
+:RmSwp                  Delete the current buffer file's swap.
+
                                                 *eunuch-:Unlink*
 :Unlink[!]              Delete the file from disk and reload the buffer.
                         If a bang is given, discard unsaved changes.
