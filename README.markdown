@@ -4,6 +4,7 @@ Vim sugar for the UNIX shell commands that need it the most.  Features
 include:
 
 * `:Remove`: Delete a buffer and the file on disk simultaneously.
+*  `:RmSwp`: Delete the current buffer file's swap.
 * `:Unlink`: Like `:Remove`, but keeps the now empty buffer.
 * `:Move`: Rename a buffer and the file on disk simultaneously.
 * `:Chmod`: Change the permissions of the current file.
