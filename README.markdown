@@ -16,6 +16,7 @@ include:
 * `:SudoEdit`: Edit a privileged file with `sudo`.
 * File type detection for `sudo -e` is based on original file name.
 * New files created with a shebang line are automatically made executable.
+* New init scripts are automatically prepopulated with `/etc/init.d/skeleton`.
 
 [guard]: https://github.com/guard/guard
 

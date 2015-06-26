@@ -19,6 +19,9 @@ invoked on it when you first write the file.
 File type detection for files edited with `sudoedit` and `sudo -e` happens
 based on the original file name.
 
+New init scripts are automatically prepopulated with `/etc/init.d/skeleton`,
+if available.
+
 COMMANDS                                        *eunuch-commands*
 
                                                 *eunuch-:Remove*

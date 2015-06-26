@@ -181,7 +181,7 @@ function! s:Wall() abort
   execute win.'wincmd w'
 endfunction
 
-augroup shebang_chmod
+augroup eunuch
   autocmd!
   autocmd BufNewFile  * let b:brand_new_file = 1
   autocmd BufWritePost * unlet! b:brand_new_file
@@ -197,6 +197,13 @@ augroup shebang_chmod
         \   edit |
         \   unlet b:chmod_post |
         \ endif
+
+  autocmd BufNewFile */init.d/*
+        \ if filereadable("/etc/init.d/skeleton") |
+        \   keepalt read /etc/init.d/skeleton |
+        \   1delete_ |
+        \ endif |
+        \ set ft=sh
 augroup END
 
 " vim:set sw=2 sts=2:
