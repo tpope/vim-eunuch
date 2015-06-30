@@ -61,7 +61,8 @@ command! -bar -nargs=1 -bang -complete=file Move :
       \   endif |
       \ endif |
       \ unlet s:src |
-      \ unlet s:dst
+      \ unlet s:dst |
+      \ filetype detect
 
 function! s:Rename_complete(A, L, P) abort
   let sep = s:separator()
