@@ -39,6 +39,7 @@ command! -bar -bang Remove
       \ unlet s:file
 
 command! -bar -nargs=1 -bang -complete=file Move :
+      \ write |
       \ let s:src = expand('%:p') |
       \ let s:dst = expand(<q-args>) |
       \ if isdirectory(s:dst) || s:dst[-1:-1] =~# '[\\/]' |
