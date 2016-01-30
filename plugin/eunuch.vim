@@ -166,7 +166,7 @@ command! -bar -nargs=? Wall
       \ else |
       \   call system('wall', <q-args>) |
       \ endif
-if !exists(':W') !=# 2
+if exists(':W') !=# 2
   command! -bar W Wall
 endif
 function! s:Wall() abort
