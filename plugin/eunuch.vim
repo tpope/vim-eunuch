@@ -141,9 +141,11 @@ command! -bar -bang -complete=file -nargs=? SudoEdit
       \   set noreadonly |
       \ endif
 
+if exists(':SudoWrite') != 2
 command! -bar SudoWrite
       \ call s:SudoSetup(expand('%:p')) |
       \ write!
+endif
 
 function! s:SudoEditInit() abort
   let files = split($SUDO_COMMAND, ' ')[1:-1]
