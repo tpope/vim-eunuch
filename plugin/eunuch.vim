@@ -122,7 +122,7 @@ endfunction
 
 function! s:SudoReadCmd() abort
   silent %delete_
-  execute (has('gui_running') ? '' : 'silent') 'read !env SUDO_EDITOR=cat sudo -e "%"'
+  execute (has('gui_running') ? '' : 'silent') 'read !env SUDO_EDITOR=cat sudo -e "%" 2>&-'
   silent 1delete_
   set nomodified
 endfunction
