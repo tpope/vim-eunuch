@@ -202,7 +202,7 @@ augroup eunuch
         \   unlet b:chmod_post |
         \ endif
 
-  autocmd BufNewFile */init.d/*
+  autocmd BufNewFile /etc/init.d/*
         \ if filereadable("/etc/init.d/skeleton") |
         \   keepalt read /etc/init.d/skeleton |
         \   1delete_ |
