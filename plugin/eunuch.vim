@@ -64,6 +64,22 @@ command! -bar -nargs=1 -bang -complete=file Move :
       \ unlet s:dst |
       \ filetype detect
 
+command! -bar -nargs=1 -bang -complete=file Copy :
+      \ let s:src = expand('%:p') |
+      \ let s:dst = expand(<q-args>) |
+      \ if isdirectory(s:dst) || s:dst[-1:-1] =~# '[\\/]' |
+      \   let s:dst .= (s:dst[-1:-1] =~# '[\\/]' ? '' : s:separator()) .
+      \     fnamemodify(s:src, ':t') |
+      \ endif |
+      \ if !isdirectory(fnamemodify(s:dst, ':h')) |
+      \   call mkdir(fnamemodify(s:dst, ':h'), 'p') |
+      \ endif |
+      \ let s:dst = substitute(simplify(s:dst), '^\.\'.s:separator(), '', '') |
+      \ exe 'keepalt saveas '.s:fnameescape(s:dst) |
+      \ unlet s:src |
+      \ unlet s:dst |
+      \ filetype detect
+
 function! s:Rename_complete(A, L, P) abort
   let sep = s:separator()
   let prefix = expand('%:p:h').sep
@@ -75,6 +91,9 @@ endfunction
 
 command! -bar -nargs=1 -bang -complete=custom,s:Rename_complete Rename
       \ Move<bang> %:h/<args>
+
+command! -bar -nargs=1 -bang -complete=custom,s:Rename_complete RenameCopy
+      \ Copy<bang> %:h/<args>
 
 command! -bar -nargs=1 Chmod :
       \ echoerr get(split(system('chmod '.<q-args>.' '.shellescape(expand('%'))), "\n"), 0, '') |
