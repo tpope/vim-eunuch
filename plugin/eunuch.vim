@@ -111,6 +111,18 @@ function! s:Grep(bang,args,prg) abort
   endtry
 endfunction
 
+function! s:SilentSudoCmd(editor) abort
+  let cmd = 'env SUDO_EDITOR=' . a:editor . ' VISUAL=' . a:editor . ' sudo -e'
+  if !has('gui_running')
+    return ['silent', cmd]
+  elseif !empty($SUDO_ASKPASS) ||
+        \ filereadable('/etc/sudo.conf') &&
+        \ len(filter(readfile('/etc/sudo.conf', 50), 'v:val =~# "^Path askpass "'))
+    return ['silent', cmd . ' -A']
+  else
+    return ['', cmd]
+endfunction
+
 function! s:SudoSetup(file) abort
   if !filereadable(a:file) && !exists('#BufReadCmd#'.s:fnameescape(a:file))
     execute 'autocmd BufReadCmd ' s:fnameescape(a:file) 'exe s:SudoReadCmd()'
@@ -137,23 +149,25 @@ function! s:SudoReadCmd() abort
     return 'echoerr ' . string('eunuch.vim: no sudo read support for csh')
   endif
   silent %delete_
-  let cmd = 'env SUDO_EDITOR=cat VISUAL=cat sudo -e "%" 2> '.s:error_file
-  execute (has('gui_running') ? '' : 'silent') 'read !' . cmd
+  let [silent, cmd] = s:SilentSudoCmd('cat')
+  execute silent 'read !' . cmd . ' "%" 2> ' . s:error_file
+  let exit_status = v:shell_error
   silent 1delete_
   setlocal nomodified
-  if v:shell_error
+  if exit_status
     return 'echoerr ' . string(s:SudoError())
   endif
 endfunction
 
 function! s:SudoWriteCmd() abort
-  let cmd = 'env SUDO_EDITOR=tee VISUAL=tee sudo -e "%" >/dev/null'
+  let [silent, cmd] = s:SilentSudoCmd('tee')
+  let cmd .= ' "%" >/dev/null'
   if &shellpipe =~ '|&'
     let cmd = '(' . cmd . ')>& ' . s:error_file
   else
     let cmd .= ' 2> ' . s:error_file
   endif
-  execute (has('gui_running') ? '' : 'silent') 'write !'.cmd
+  execute silent 'write !'.cmd
   let error = s:SudoError()
   if !empty(error)
     return 'echoerr ' . string(error)
