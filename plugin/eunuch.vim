@@ -113,7 +113,7 @@ endfunction
 
 function! s:SudoSetup(file) abort
   if !filereadable(a:file) && !exists('#BufReadCmd#'.s:fnameescape(a:file))
-    execute 'autocmd BufReadCmd ' s:fnameescape(a:file) 'call s:SudoReadCmd()'
+    execute 'autocmd BufReadCmd ' s:fnameescape(a:file) 'exe s:SudoReadCmd()'
   endif
   if !filewritable(a:file) && !exists('#BufWriteCmd#'.s:fnameescape(a:file))
     execute 'autocmd BufReadPost ' s:fnameescape(a:file) 'set noreadonly'
@@ -121,15 +121,31 @@ function! s:SudoSetup(file) abort
   endif
 endfunction
 
-function! s:SudoReadCmd() abort
-  silent %delete_
-  let pipe = printf(&shellpipe . (&shellpipe =~ '%s' ? '' : ' %s'), '/dev/null')
-  execute (has('gui_running') ? '' : 'silent') 'read !env SUDO_EDITOR=cat VISUAL=cat sudo -e "%" ' . pipe
-  silent 1delete_
-  set nomodified
+let s:error_file = tempname()
+
+function! s:SudoError() abort
+  let error = join(readfile(s:error_file), " | ")
+  if error =~# '^sudo' || v:shell_error
+    return len(error) ? error : 'Error invoking sudo'
+  else
+    return error
+  endif
 endfunction
 
-let s:error_file = tempname()
+function! s:SudoReadCmd() abort
+  if &shellpipe =~ '|&'
+    return 'echoerr ' . string('eunuch.vim: no sudo read support for csh')
+  endif
+  silent %delete_
+  let cmd = 'env SUDO_EDITOR=cat VISUAL=cat sudo -e "%" 2> '.s:error_file
+  execute (has('gui_running') ? '' : 'silent') 'read !' . cmd
+  silent 1delete_
+  setlocal nomodified
+  if v:shell_error
+    return 'echoerr ' . string(s:SudoError())
+  endif
+endfunction
+
 function! s:SudoWriteCmd() abort
   let cmd = 'env SUDO_EDITOR=tee VISUAL=tee sudo -e "%" >/dev/null'
   if &shellpipe =~ '|&'
@@ -138,9 +154,9 @@ function! s:SudoWriteCmd() abort
     let cmd .= ' 2> ' . s:error_file
   endif
   execute (has('gui_running') ? '' : 'silent') 'write !'.cmd
-  let error = join(readfile(s:error_file), " | ")
-  if error =~# '^sudo' || v:shell_error
-    return 'echoerr ' . string(len(error) ? error : 'Error invoking sudo')
+  let error = s:SudoError()
+  if !empty(error)
+    return 'echoerr ' . string(error)
   else
     setlocal nomodified
     return ''
