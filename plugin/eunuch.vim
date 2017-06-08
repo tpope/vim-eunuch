@@ -131,7 +131,13 @@ endfunction
 
 let s:error_file = tempname()
 function! s:SudoWriteCmd() abort
-  execute (has('gui_running') ? '' : 'silent') 'write !env SUDO_EDITOR=tee VISUAL=tee sudo -e "%" >/dev/null 2>' s:error_file
+  let cmd = 'env SUDO_EDITOR=tee VISUAL=tee sudo -e "%" >/dev/null'
+  if &shellpipe =~ '|&'
+    let cmd = '(' . cmd . ')>& ' . s:error_file
+  else
+    let cmd .= ' 2> ' . s:error_file
+  endif
+  execute (has('gui_running') ? '' : 'silent') 'write !'.cmd
   let error = join(readfile(s:error_file), " | ")
   if error =~# '^sudo' || v:shell_error
     return 'echoerr ' . string(len(error) ? error : 'Error invoking sudo')
