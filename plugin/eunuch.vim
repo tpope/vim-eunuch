@@ -116,7 +116,7 @@ function! s:SudoSetup(file) abort
   endif
   if !filewritable(a:file) && !exists('#BufWriteCmd#'.s:fnameescape(a:file))
     execute 'autocmd BufReadPost ' s:fnameescape(a:file) 'set noreadonly'
-    execute 'autocmd BufWriteCmd ' s:fnameescape(a:file) 'call s:SudoWriteCmd()'
+    execute 'autocmd BufWriteCmd ' s:fnameescape(a:file) 'exe s:SudoWriteCmd()'
   endif
 endfunction
 
@@ -128,9 +128,16 @@ function! s:SudoReadCmd() abort
   set nomodified
 endfunction
 
+let s:error_file = tempname()
 function! s:SudoWriteCmd() abort
-  execute (has('gui_running') ? '' : 'silent') 'write !env SUDO_EDITOR=tee VISUAL=tee sudo -e "%" >/dev/null'
-  let &modified = v:shell_error
+  execute (has('gui_running') ? '' : 'silent') 'write !env SUDO_EDITOR=tee VISUAL=tee sudo -e "%" >/dev/null 2>' s:error_file
+  let error = join(readfile(s:error_file), " | ")
+  if error =~# '^sudo' || v:shell_error
+    return 'echoerr ' . string(len(error) ? error : 'Error invoking sudo')
+  else
+    setlocal nomodified
+    return ''
+  endif
 endfunction
 
 command! -bar -bang -complete=file -nargs=? SudoEdit
