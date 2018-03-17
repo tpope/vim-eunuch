@@ -120,14 +120,15 @@ endfunction
 
 function! s:SilentSudoCmd(editor) abort
   let cmd = 'env SUDO_EDITOR=' . a:editor . ' VISUAL=' . a:editor . ' sudo -e'
-  if !has('gui_running')
+  let local_nvim = has('nvim') && len($DISPLAY . $SECURITYSESSIONID)
+  if !has('gui_running') && !local_nvim
     return ['silent', cmd]
   elseif !empty($SUDO_ASKPASS) ||
         \ filereadable('/etc/sudo.conf') &&
         \ len(filter(readfile('/etc/sudo.conf', 50), 'v:val =~# "^Path askpass "'))
     return ['silent', cmd . ' -A']
   else
-    return ['', cmd]
+    return [local_nvim ? 'silent' : '', cmd]
 endfunction
 
 function! s:SudoSetup(file) abort
