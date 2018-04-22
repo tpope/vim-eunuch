@@ -129,6 +129,7 @@ function! s:SilentSudoCmd(editor) abort
     return ['silent', cmd . ' -A']
   else
     return [local_nvim ? 'silent' : '', cmd]
+  endif
 endfunction
 
 function! s:SudoSetup(file) abort
