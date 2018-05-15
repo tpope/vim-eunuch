@@ -30,9 +30,9 @@ command! -bar -bang Unlink
       \   edit! |
       \ endif
 
-command! -bar -bang Remove
+command! -bar Remove
       \ let s:file = fnamemodify(bufname(<q-args>),':p') |
-      \ execute 'bdelete<bang>' |
+      \ execute 'bdelete!' |
       \ if !bufloaded(s:file) && delete(s:file) |
       \   echoerr 'Failed to delete "'.s:file.'"' |
       \ endif |
