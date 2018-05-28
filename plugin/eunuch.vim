@@ -31,12 +31,10 @@ command! -bar -bang Unlink
       \ endif
 
 command! -bar -bang Remove
-      \ let s:file = fnamemodify(bufname(<q-args>),':p') |
-      \ execute 'bdelete<bang>' |
-      \ if !bufloaded(s:file) && delete(s:file) |
-      \   echoerr 'Failed to delete "'.s:file.'"' |
-      \ endif |
-      \ unlet s:file
+      \ silent Unlink<bang> |
+      \ echohl WarningMsg |
+      \ echo "File deleted. Use :Delete instead of :Remove to delete the buffer too." |
+      \ echohl NONE
 
 command! -bar -bang Delete
       \ let s:file = fnamemodify(bufname(<q-args>),':p') |
