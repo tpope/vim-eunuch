@@ -9,8 +9,9 @@ include:
 * `:Rename`: Like `:Move`, but relative to the current file's containing directory.
 * `:Chmod`: Change the permissions of the current file.
 * `:Mkdir`: Create a directory, defaulting to the parent of the current file.
-* `:Find`: Run `find` and load the results into the quickfix list.
-* `:Locate`: Run `locate` and load the results into the quickfix list.
+* `:Cfind`: Run `find` and load the results into the quickfix list.
+* `:Clocate`: Run `locate` and load the results into the quickfix list.
+* `:Lfind`/`:Llocate`: Like above, but use the location list.
 * `:Wall`: Write every open window.  Handy for kicking off tools like [guard][].
 * `:SudoWrite`: Write a privileged file with `sudo`.
 * `:SudoEdit`: Edit a privileged file with `sudo`.

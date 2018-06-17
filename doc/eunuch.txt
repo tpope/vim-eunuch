@@ -55,12 +55,22 @@ COMMANDS                                        *eunuch-commands*
 :Mkdir[!]               With no argument, create the containing directory for
                         the current file.
 
+                                                *eunuch-:Cfind*
                                                 *eunuch-:Find*
-:Find[!] {args}         Run `find` and load the results into the quickfix
+:Cfind[!] {args}        Run `find` and load the results into the quickfix
                         list.  Jump to the first result unless ! is given.
 
+                                                *eunuch-:Lfind*
+:Lfind[!] {args}        Run `find` and load the results into the location
+                        list.  Jump to the first result unless ! is given.
+
+                                                *eunuch-:Clocate*
                                                 *eunuch-:Locate*
-:Locate[!] {args}       Run `locate` and load the results into the quickfix
+:Clocate[!] {args}      Run `locate` and load the results into the quickfix
+                        list.  Jump to the first result unless ! is given.
+
+                                                *eunuch-:Llocate*
+:Llocate[!] {args}      Run `locate` and load the results into the location
                         list.  Jump to the first result unless ! is given.
 
                                                 *eunuch-:SudoEdit*
