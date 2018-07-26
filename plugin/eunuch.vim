@@ -111,8 +111,31 @@ endfunction
 command! -bar -nargs=1 -bang -complete=custom,s:Rename_complete Rename
       \ Move<bang> %:h/<args>
 
-command! -bar -nargs=1 Chmod :
-      \ echoerr get(split(system('chmod '.<q-args>.' '.shellescape(expand('%'))), "\n"), 0, '') |
+let s:permlookup = ['---','--x','-w-','-wx','r--','r-x','rw-','rwx']
+function! s:Chmod(bang, perm, ...) abort
+  let file = a:0 ? expand(join(a:000, ' ')) : @%
+  if !a:bang && exists('*setfperm')
+    let perm = ''
+    if a:perm =~# '^\0*[0-7]\{3\}$'
+      let perm = substitute(a:perm[-3:-1], '.', '\=s:permlookup[submatch(0)]', 'g')
+    elseif a:perm ==# '+x'
+      let perm = substitute(s:fcall('getfperm', file), '\(..\).', '\1x', 'g')
+    elseif a:perm ==# '-x'
+      let perm = substitute(s:fcall('getfperm', file), '\(..\).', '\1-', 'g')
+    endif
+    if len(perm) && !s:fcall('setfperm', file, perm)
+      return ''
+    endif
+  endif
+  if !executable('chmod')
+    return 'echoerr "No chmod command in path"'
+  endif
+  let out = get(split(system('chmod '.(a:bang ? '-R ' : '').a:perm.' '.shellescape(file)), "\n"), 0, '')
+  return len(out) ? 'echoerr ' . string(out) : ''
+endfunction
+
+command! -bar -bang -nargs=+ Chmod
+      \ exe s:Chmod(<bang>0, <f-args>) |
 
 command! -bar -bang -nargs=? -complete=dir Mkdir
       \ call mkdir(empty(<q-args>) ? expand('%:h') : <q-args>, <bang>0 ? 'p' : '') |
@@ -269,17 +292,15 @@ endfunction
 
 augroup eunuch
   autocmd!
-  autocmd BufNewFile  * let b:brand_new_file = 1
-  autocmd BufWritePost * unlet! b:brand_new_file
+  autocmd BufNewFile  * let b:eunuch_new_file = 1
+  autocmd BufWritePost * unlet! b:eunuch_new_file
   autocmd BufWritePre *
-        \ if exists('b:brand_new_file') |
-        \   if getline(1) =~ '^#!\s*/' |
-        \     let b:chmod_post = '+x' |
-        \   endif |
+        \ if exists('b:eunuch_new_file') && getline(1) =~ '^#!\s*/' |
+        \   let b:chmod_post = '+x' |
         \ endif
   autocmd BufWritePost,FileWritePost * nested
-        \ if exists('b:chmod_post') && executable('chmod') |
-        \   silent! execute '!chmod '.b:chmod_post.' "<afile>"' |
+        \ if exists('b:chmod_post') |
+        \   call s:Chmod(0, b:chmod_post, '<afile>') |
         \   edit |
         \   unlet b:chmod_post |
         \ endif
