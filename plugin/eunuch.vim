@@ -21,10 +21,41 @@ function! s:separator()
   return !exists('+shellslash') || &shellslash ? '/' : '\\'
 endfunction
 
+function! s:fcall(fn, path, ...) abort
+  let ns = tr(matchstr(a:path, '^\a\a\+:'), ':', '#')
+  if len(ns) && exists('*' . ns . a:fn)
+    return call(ns . a:fn, [a:path] + a:000)
+  else
+    return call(a:fn, [a:path] + a:000)
+  endif
+endfunction
+
+function! s:rename(src, dst) abort
+  if a:src !~# '^\a\a\+:' && a:dst !~# '^\a\a\+:'
+    return rename(a:src, a:dst)
+  endif
+  try
+    let fn = tr(matchstr(a:dst, '^\a\a\+:'), ':', '#') . 'writefile'
+    if !exists('*' . fn)
+      let fn = 'writefile'
+    endif
+    return call(fn, [s:fcall('readfile', a:src, 'b'), a:dst])
+  catch
+    return -1
+  endtry
+endfunction
+
+function! s:mkdir_p(path) abort
+  let ns = tr(matchstr(a:path, '^\a\a\+:'), ':', '#')
+  if !s:fcall('isdirectory', a:path) && s:fcall('filewritable', a:path) !=# 2 && exists('*' . ns . 'mkdir')
+    call call(ns . 'mkdir', [a:path, 'p'])
+  endif
+endfunction
+
 command! -bar -bang Unlink
       \ if <bang>1 && &modified |
       \   edit |
-      \ elseif delete(expand('%')) |
+      \ elseif s:fcall('delete', expand('%')) |
       \   echoerr 'Failed to delete "'.expand('%').'"' |
       \ else |
       \   edit! |
@@ -39,25 +70,23 @@ command! -bar -bang Remove
 command! -bar -bang Delete
       \ let s:file = fnamemodify(bufname(<q-args>),':p') |
       \ execute 'bdelete<bang>' |
-      \ if !bufloaded(s:file) && delete(s:file) |
+      \ if !bufloaded(s:file) && s:fcall('delete', s:file) |
       \   echoerr 'Failed to delete "'.s:file.'"' |
       \ endif |
       \ unlet s:file
 
-command! -bar -nargs=1 -bang -complete=file Move :
+command! -bar -nargs=1 -bang -complete=file Move
       \ let s:src = expand('%:p') |
       \ let s:dst = expand(<q-args>) |
-      \ if isdirectory(s:dst) || s:dst[-1:-1] =~# '[\\/]' |
+      \ if s:fcall('isdirectory', s:dst) || s:dst[-1:-1] =~# '[\\/]' |
       \   let s:dst .= (s:dst[-1:-1] =~# '[\\/]' ? '' : s:separator()) .
       \     fnamemodify(s:src, ':t') |
       \ endif |
-      \ if !isdirectory(fnamemodify(s:dst, ':h')) |
-      \   call mkdir(fnamemodify(s:dst, ':h'), 'p') |
-      \ endif |
-      \ let s:dst = substitute(simplify(s:dst), '^\.\'.s:separator(), '', '') |
-      \ if <bang>1 && filereadable(s:dst) |
+      \ call s:mkdir_p(fnamemodify(s:dst, ':h')) |
+      \ let s:dst = substitute(s:fcall('simplify', s:dst), '^\.\'.s:separator(), '', '') |
+      \ if <bang>1 && s:fcall('filereadable', s:dst) |
       \   exe 'keepalt saveas '.s:fnameescape(s:dst) |
-      \ elseif rename(s:src, s:dst) |
+      \ elseif s:rename(s:src, s:dst) |
       \   echoerr 'Failed to rename "'.s:src.'" to "'.s:dst.'"' |
       \ else |
       \   setlocal modified |
