@@ -21,13 +21,24 @@ function! s:separator()
   return !exists('+shellslash') || &shellslash ? '/' : '\\'
 endfunction
 
-function! s:fcall(fn, path, ...) abort
+if !exists('s:loaded')
+  let s:loaded = {}
+endif
+function! s:ffn(fn, path) abort
   let ns = tr(matchstr(a:path, '^\a\a\+:'), ':', '#')
-  if len(ns) && exists('*' . ns . a:fn)
-    return call(ns . a:fn, [a:path] + a:000)
-  else
-    return call(a:fn, [a:path] + a:000)
+  let fn = ns . a:fn
+  if len(ns) && !exists('*' . fn) && !has_key(s:loaded, ns) && len(findfile('autoload/' . ns[0:-2] . '.vim', escape(&rtp, ' ')))
+    exe 'runtime! autoload/' . ns[0:-2] . '.vim'
   endif
+  if len(ns) && exists('*' . fn)
+    return fn
+  else
+    return a:fn
+  endif
+endfunction
+
+function! s:fcall(fn, path, ...) abort
+  return call(s:ffn(a:fn, a:path), [a:path] + a:000)
 endfunction
 
 function! s:rename(src, dst) abort
@@ -35,10 +46,7 @@ function! s:rename(src, dst) abort
     return rename(a:src, a:dst)
   endif
   try
-    let fn = tr(matchstr(a:dst, '^\a\a\+:'), ':', '#') . 'writefile'
-    if !exists('*' . fn)
-      let fn = 'writefile'
-    endif
+    let fn = s:ffn('writefile', a:dst)
     return call(fn, [s:fcall('readfile', a:src, 'b'), a:dst])
   catch
     return -1
