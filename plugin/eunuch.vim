@@ -47,7 +47,16 @@ function! s:rename(src, dst) abort
   endif
   try
     let fn = s:ffn('writefile', a:dst)
-    return call(fn, [s:fcall('readfile', a:src, 'b'), a:dst])
+    let copy = call(fn, [s:fcall('readfile', a:src, 'b'), a:dst])
+    if copy == 0
+      let delete = s:fcall('delete', a:src)
+      if delete == 0
+        return 0
+      else
+        call s:fcall('delete', a:dst)
+        return -1
+      endif
+    endif
   catch
     return -1
   endtry
