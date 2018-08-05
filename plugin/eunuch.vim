@@ -155,7 +155,7 @@ command! -bar -bang -nargs=+ Chmod
       \ exe s:Chmod(<bang>0, <f-args>) |
 
 command! -bar -bang -nargs=? -complete=dir Mkdir
-      \ call mkdir(empty(<q-args>) ? expand('%:h') : <q-args>, <bang>0 ? 'p' : '') |
+      \ call call(<bang>0 ? 's:mkdir_p' : 'mkdir', [empty(<q-args>) ? expand('%:h') : <q-args>]) |
       \ if empty(<q-args>) |
       \  silent keepalt execute 'file' s:fnameescape(expand('%')) |
       \ endif
