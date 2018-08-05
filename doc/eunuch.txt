@@ -29,12 +29,12 @@ COMMANDS                                        *eunuch-commands*
                         disk.  If a bang is given, it is passed along to
                         :bdelete.
 
-                                                *eunuch-:Remove*
-:Remove[!]              Deprecated alias for :Delete.
-
                                                 *eunuch-:Unlink*
 :Unlink[!]              Delete the file from disk and reload the buffer.
                         If a bang is given, discard unsaved changes.
+
+                                                *eunuch-:Remove*
+:Remove[!]              Alias for :Unlink.
 
                                                 *eunuch-:Move*
 :Move[!] {file}         Like |:saveas|, but delete the old file afterwards.
