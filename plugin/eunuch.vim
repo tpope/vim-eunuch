@@ -29,6 +29,7 @@ function! s:ffn(fn, path) abort
   let fn = ns . a:fn
   if len(ns) && !exists('*' . fn) && !has_key(s:loaded, ns) && len(findfile('autoload/' . ns[0:-2] . '.vim', escape(&rtp, ' ')))
     exe 'runtime! autoload/' . ns[0:-2] . '.vim'
+    let s:loaded[ns] = 1
   endif
   if len(ns) && exists('*' . fn)
     return fn
