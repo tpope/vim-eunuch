@@ -43,6 +43,9 @@ COMMANDS                                        *eunuch-commands*
 :Rename[!] {file}       Like |:Move|, but relative to the current file's
                         containing directory.
 
+                                                *eunuch-:Copy*
+:Copy[!] {file}         Like |:saveas|, but relative to the current file's
+                        containing directory.
                                                 *eunuch-:Chmod*
 :Chmod {mode}           Change the permissions of the current file.
 

@@ -125,6 +125,20 @@ endfunction
 command! -bar -nargs=1 -bang -complete=custom,s:Rename_complete Rename
       \ Move<bang> %:h/<args>
 
+command! -bar -nargs=1 -bang -complete=custom,s:Rename_complete Copy
+      \ let s:src = expand('%:p') |
+      \ let s:dst = expand("%:h")."/".expand(<q-args>) |
+      \ if s:fcall('isdirectory', s:dst) || s:dst[-1:-1] =~# '[\\/]' |
+      \   let s:dst .= (s:dst[-1:-1] =~# '[\\/]' ? '' : s:separator()) .
+      \     fnamemodify(s:src, ':t') |
+      \ endif |
+      \ call s:mkdir_p(fnamemodify(s:dst, ':h')) |
+      \ let s:dst = substitute(s:fcall('simplify', s:dst), '^\.\'.s:separator(), '', '') |
+      \ execute 'keepalt saveas<bang> '.s:fnameescape(s:dst) |
+      \ unlet s:src |
+      \ unlet s:dst |
+      \ filetype detect
+
 let s:permlookup = ['---','--x','-w-','-wx','r--','r-x','rw-','rwx']
 function! s:Chmod(bang, perm, ...) abort
   let file = a:0 ? expand(join(a:000, ' ')) : @%
