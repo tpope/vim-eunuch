@@ -23,13 +23,20 @@ include:
 
 ## Installation
 
-Install using your favorite package manager, or use Vim's built-in package
-support:
+Install using Vim's built-in package support:
 
     mkdir -p ~/.vim/pack/tpope/start
     cd ~/.vim/pack/tpope/start
     git clone https://tpope.io/vim/eunuch.git
     vim -u NONE -c "helptags eunuch/doc" -c q
+
+### Using Vundle
+
+    Plugin 'tpope/vim-eunuch'
+
+### Using vim-plug
+
+    Plug 'tpope/vim-eunuch'
 
 ## Contributing
 
