@@ -324,13 +324,6 @@ augroup eunuch
         \   edit |
         \   unlet b:chmod_post |
         \ endif
-
-  autocmd BufNewFile /etc/init.d/*
-        \ if filereadable("/etc/init.d/skeleton") |
-        \   keepalt read /etc/init.d/skeleton |
-        \   1delete_ |
-        \ endif |
-        \ set ft=sh
 augroup END
 
 " vim:set sw=2 sts=2:
