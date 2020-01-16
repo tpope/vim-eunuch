@@ -137,7 +137,7 @@ function! s:Chmod(bang, perm, ...) abort
     elseif a:perm ==# '-x'
       let perm = substitute(s:fcall('getfperm', file), '\(..\).', '\1-', 'g')
     endif
-    if len(perm) && !s:fcall('setfperm', file, perm)
+    if len(perm) && file =~# '^\a\a\+:' && !s:fcall('setfperm', file, perm)
       return ''
     endif
   endif
