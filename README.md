@@ -33,7 +33,7 @@ support:
 ## Contributing
 
 See the contribution guidelines for
-[pathogen.vim](https://github.com/tpope/vim-pathogen#readme).
+[pathogen.vim](https://github.com/tpope/vim-pathogen#Contributing).
 
 ## Self-Promotion
 
