@@ -186,7 +186,7 @@ endfunction
 
 function! s:SilentSudoCmd(editor) abort
   let cmd = 'env SUDO_EDITOR=' . a:editor . ' VISUAL=' . a:editor . ' sudo -e'
-  let local_nvim = has('nvim') && len($DISPLAY . $SECURITYSESSIONID)
+  let local_nvim = has('nvim') && len($DISPLAY . $SECURITYSESSIONID . $TERM_PROGRAM)
   if !has('gui_running') && !local_nvim
     return ['silent', cmd]
   elseif !empty($SUDO_ASKPASS) ||
