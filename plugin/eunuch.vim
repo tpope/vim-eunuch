@@ -301,7 +301,7 @@ function! s:Wall() abort
   let tab = tabpagenr()
   let win = winnr()
   let seen = {}
-  if !&readonly && expand('%') !=# ''
+  if !&readonly && &buftype =~# '^\%(acwrite\)\=$' && expand('%') !=# ''
     let seen[bufnr('')] = 1
     write
   endif
