@@ -191,7 +191,7 @@ function! s:SilentSudoCmd(editor) abort
     return ['silent', cmd]
   elseif !empty($SUDO_ASKPASS) ||
         \ filereadable('/etc/sudo.conf') &&
-        \ len(filter(readfile('/etc/sudo.conf', 50), 'v:val =~# "^Path askpass "'))
+        \ len(filter(readfile('/etc/sudo.conf', '', 50), 'v:val =~# "^Path askpass "'))
     return ['silent', cmd . ' -A']
   else
     return [local_nvim ? 'silent' : '', cmd]
