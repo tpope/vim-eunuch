@@ -7,6 +7,8 @@ if exists('g:loaded_eunuch') || &cp || v:version < 700
 endif
 let g:loaded_eunuch = 1
 
+let s:nomodeline = v:version > 703 ? '<nomodeline>' : ''
+
 function! s:fnameescape(string) abort
   if exists('*fnameescape')
     return fnameescape(a:string)
@@ -64,6 +66,7 @@ command! -bar -bang Unlink
       \   echoerr 'Failed to delete "'.expand('%').'"' |
       \ else |
       \   edit! |
+      \   exe 'doautocmd' s:nomodeline 'User FileUnlinkPost' |
       \ endif
 
 command! -bar -bang Remove Unlink<bang>
@@ -114,6 +117,7 @@ command! -bar -nargs=1 -bang -complete=custom,s:Rename_complete Rename
 
 let s:permlookup = ['---','--x','-w-','-wx','r--','r-x','rw-','rwx']
 function! s:Chmod(bang, perm, ...) abort
+  let autocmd = 'doautocmd ' . s:nomodeline . ' User FileChmodPost'
   let file = a:0 ? expand(join(a:000, ' ')) : @%
   if !a:bang && exists('*setfperm')
     let perm = ''
@@ -125,18 +129,18 @@ function! s:Chmod(bang, perm, ...) abort
       let perm = substitute(s:fcall('getfperm', file), '\(..\).', '\1-', 'g')
     endif
     if len(perm) && file =~# '^\a\a\+:' && !s:fcall('setfperm', file, perm)
-      return ''
+      return autocmd
     endif
   endif
   if !executable('chmod')
     return 'echoerr "No chmod command in path"'
   endif
   let out = get(split(system('chmod '.(a:bang ? '-R ' : '').a:perm.' '.shellescape(file)), "\n"), 0, '')
-  return len(out) ? 'echoerr ' . string(out) : ''
+  return len(out) ? 'echoerr ' . string(out) : autocmd
 endfunction
 
 command! -bar -bang -nargs=+ Chmod
-      \ exe s:Chmod(<bang>0, <f-args>) |
+      \ exe s:Chmod(<bang>0, <f-args>)
 
 command! -bar -bang -nargs=? -complete=dir Mkdir
       \ call call(<bang>0 ? 's:mkdir_p' : 'mkdir', [empty(<q-args>) ? expand('%:h') : <q-args>]) |
@@ -205,8 +209,6 @@ function! s:SudoError() abort
     return error
   endif
 endfunction
-
-let s:nomodeline = v:version > 703 ? '<nomodeline>' : ''
 
 function! s:SudoReadCmd() abort
   if &shellpipe =~ '|&'
