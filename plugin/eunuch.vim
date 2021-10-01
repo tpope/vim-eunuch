@@ -313,7 +313,7 @@ augroup eunuch
         \   edit |
         \   unlet b:chmod_post |
         \ endif
-  autocmd User FileChmodPost,FileUnlinkPost * "
+  autocmd User FileChmodPost,FileUnlinkPost "
 augroup END
 
 " vim:set sw=2 sts=2:
