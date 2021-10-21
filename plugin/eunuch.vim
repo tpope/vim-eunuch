@@ -263,17 +263,28 @@ command! -bar SudoWrite
 endif
 
 function! s:SudoEditInit() abort
-  let files = split($SUDO_COMMAND, ' ')[1:-1]
-  if len(files) ==# argc()
-    for i in range(argc())
+  let ppid = system('ps -o ppid:1= -p ' . getpid())
+  let files = split( system( "ps -o command= -p " . trim(ppid) ) )
+
+  if files[0] == 'sudoedit'
+    for i in range(len(files)-1)
       execute 'autocmd BufEnter' s:fnameescape(argv(i))
             \ 'if empty(&filetype) || &filetype ==# "conf"'
-            \ '|doautocmd filetypedetect BufReadPost' s:fnameescape(files[i])
+            \ '|doautocmd filetypedetect BufReadPost' s:fnameescape(files[i+1])
+            \ '|endif'
+      endfor
+  endif
+  if files[0] == 'sudo' && files[1] == '-e'
+    for i in range(len(files)-2)
+      execute 'autocmd BufEnter' s:fnameescape(argv(i))
+            \ 'if empty(&filetype) || &filetype ==# "conf"'
+            \ '|doautocmd filetypedetect BufReadPost' s:fnameescape(files[i+2])
             \ '|endif'
     endfor
   endif
 endfunction
-if $SUDO_COMMAND =~# '^sudoedit '
+let file_name = expand('%:t:p')
+if file_name =~# '.\{-}\(XX\)\@='
   call s:SudoEditInit()
 endif
 
