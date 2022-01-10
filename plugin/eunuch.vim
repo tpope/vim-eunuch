@@ -73,11 +73,13 @@ command! -bar -bang Remove Unlink<bang>
 
 command! -bar -bang Delete
       \ let s:file = fnamemodify(bufname(<q-args>),':p') |
-      \ execute 'bdelete<bang>' |
+      \ let s:bdelete_cmd = get(g:, 'eunuch_bdelete_command', 'Bdelete') |
+      \ execute (exists(':' . s:bdelete_cmd) == 2 ? s:bdelete_cmd : 'bdelete') . '<bang>' |
       \ if !bufloaded(s:file) && s:fcall('delete', s:file) |
       \   echoerr 'Failed to delete "'.s:file.'"' |
       \ endif |
-      \ unlet s:file
+      \ unlet s:file |
+      \ unlet s:bdelete_cmd
 
 command! -bar -nargs=1 -bang -complete=file Move
       \ let s:src = expand('%:p') |

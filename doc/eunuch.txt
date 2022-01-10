@@ -22,9 +22,13 @@ based on the original file name.
 COMMANDS                                        *eunuch-commands*
 
                                                 *eunuch-:Delete*
+                                                *g:eunuch_bdelete_command*
 :Delete[!]              |:bdelete|, and, if successful, delete the file from
                         disk.  If a bang is given, it is passed along to
-                        :bdelete.
+                        :bdelete. For integration with plugins such as vim-bbye
+                        and Bclose.vim, an alternative :bdelete command can be
+                        specified with g:eunuch_bdelete_command (by default
+                        :Bdelete will be tried automatically).
 
                                                 *eunuch-:Unlink*
 :Unlink[!]              Delete the file from disk and reload the buffer.
