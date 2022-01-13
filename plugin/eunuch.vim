@@ -66,7 +66,7 @@ command! -bar -bang Unlink
       \   echoerr 'Failed to delete "'.expand('%').'"' |
       \ else |
       \   edit! |
-      \   exe 'doautocmd' s:nomodeline 'User FileUnlinkPost' |
+      \   silent exe 'doautocmd' s:nomodeline 'User FileUnlinkPost' |
       \ endif
 
 command! -bar -bang Remove Unlink<bang>
@@ -117,7 +117,7 @@ command! -bar -nargs=1 -bang -complete=custom,s:Rename_complete Rename
 
 let s:permlookup = ['---','--x','-w-','-wx','r--','r-x','rw-','rwx']
 function! s:Chmod(bang, perm, ...) abort
-  let autocmd = 'doautocmd ' . s:nomodeline . ' User FileChmodPost'
+  let autocmd = 'silent doautocmd ' . s:nomodeline . ' User FileChmodPost'
   let file = a:0 ? expand(join(a:000, ' ')) : @%
   if !a:bang && exists('*setfperm')
     let perm = ''
