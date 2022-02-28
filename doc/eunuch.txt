@@ -89,6 +89,17 @@ COMMANDS                                        *eunuch-commands*
                         doubles as a safe fallback for people who, like me,
                         accidentally type :W instead of :w a lot.
 
+OPTIONS                                         *eunuch-options*
+
+                                *eunuch-g:eunuch_delete_keeps_windows_open*
+g:eunuch_delete_keeps_windows_open   Choose whether ':Delete' can keep the
+                                     windows that contain the current
+                                     buffer open.
+                                     Values:
+                                       1: It will keep the windows open.
+                                       0: It will close the windows.
+                                     Default value: 0.
+
 ABOUT                                           *eunuch-about*
 
 Grab the latest version or report a bug on GitHub:

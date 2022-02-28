@@ -71,13 +71,35 @@ command! -bar -bang Unlink
 
 command! -bar -bang Remove Unlink<bang>
 
-command! -bar -bang Delete
-      \ let s:file = fnamemodify(bufname(<q-args>),':p') |
-      \ execute 'bdelete<bang>' |
-      \ if !bufloaded(s:file) && s:fcall('delete', s:file) |
-      \   echoerr 'Failed to delete "'.s:file.'"' |
-      \ endif |
-      \ unlet s:file
+function! s:Delete(bang) abort
+  let l:bang_str = (a:bang) ? '!' : ''
+  let l:bufname = bufname()
+  let l:file = (l:bufname ==# '') ? '' : fnamemodify(l:bufname, ':p')
+
+  if g:eunuch_delete_keeps_windows_open
+    let l:bufnr = bufnr()
+
+    if !a:bang && &modified
+      echoerr 'eunuch.vim: no write since last change for buffer ' .
+            \ l:bufnr . ' (add ! to override)'
+      return
+    endif
+
+    for s:window in win_findbuf(l:bufnr)
+      call win_execute(s:window, 'enew' . l:bang_str)
+    endfor
+
+    execute 'bdelete' . l:bang_str . ' ' . l:bufnr
+  else
+    execute 'bdelete' . l:bang_str
+  endif
+
+  if !bufloaded(l:file) && s:fcall('delete', l:file)
+    echoerr 'Failed to delete "'.l:file.'"'
+  endif
+endfunction
+
+command! -bar -bang Delete call s:Delete(<bang>0)
 
 command! -bar -nargs=1 -bang -complete=file Move
       \ let s:src = expand('%:p') |
@@ -315,5 +337,7 @@ augroup eunuch
         \ endif
   autocmd User FileChmodPost,FileUnlinkPost "
 augroup END
+
+let g:eunuch_delete_keeps_windows_open = get(g:, 'eunuch_delete_keeps_windows_open', 0)
 
 " vim:set sw=2 sts=2:
