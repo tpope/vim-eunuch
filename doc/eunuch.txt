@@ -31,7 +31,9 @@ COMMANDS                                        *eunuch-commands*
                         If a bang is given, discard unsaved changes.
 
                                                 *eunuch-:Remove*
-:Remove[!]              Alias for :Unlink.
+:Remove[!]              Delete the file from disk and edit a new, unnamed
+                        buffer in all the windows that contain the current
+                        buffer. If a bang is given, discard unsaved changes.
 
                                                 *eunuch-:Move*
 :Move[!] {file}         Like |:saveas|, but delete the old file afterwards.

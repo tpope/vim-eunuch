@@ -69,7 +69,34 @@ command! -bar -bang Unlink
       \   silent exe 'doautocmd' s:nomodeline 'User FileUnlinkPost' |
       \ endif
 
-command! -bar -bang Remove Unlink<bang>
+function! s:Remove(bang) abort
+  let l:filename = expand('%')
+  let l:bufnr = bufnr()
+
+  if &buftype !=# ''
+    echoerr 'Unsupported buffer type: ' . &buftype
+    return
+  endif
+
+  if !a:bang && &modified
+    echoerr 'No write since last change for buffer ' . l:bufnr .
+          \ ' (add ! to override)'
+    return
+  endif
+
+  if l:filename !=# ''
+    if s:fcall('delete', l:filename)
+      echoerr 'Failed to delete "'. l:filename .'"'
+      return
+    endif
+  endif
+
+  for l:win_id in win_findbuf(l:bufnr)
+    call win_execute(l:win_id, 'enew' . ((a:bang) ? '!' : ''))
+  endfor
+endfunction
+
+command! -bar -bang Remove call s:Remove(<bang>0)
 
 command! -bar -bang Delete
       \ let s:file = fnamemodify(bufname(<q-args>),':p') |
