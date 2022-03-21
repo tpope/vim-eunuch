@@ -2,22 +2,12 @@
 " Maintainer:   Tim Pope <http://tpo.pe/>
 " Version:      1.2
 
-if exists('g:loaded_eunuch') || &cp || v:version < 700
+if exists('g:loaded_eunuch') || &cp || v:version < 703
   finish
 endif
 let g:loaded_eunuch = 1
 
 let s:nomodeline = v:version > 703 ? '<nomodeline>' : ''
-
-function! s:fnameescape(string) abort
-  if exists('*fnameescape')
-    return fnameescape(a:string)
-  elseif a:string ==# '-'
-    return '\-'
-  else
-    return substitute(escape(a:string," \t\n*?[{`$\\%#'\"|!<"),'^[+>]','\\&','')
-  endif
-endfunction
 
 function! s:separator() abort
   return !exists('+shellslash') || &shellslash ? '/' : '\\'
@@ -89,14 +79,14 @@ command! -bar -nargs=1 -bang -complete=file Move
       \ call s:mkdir_p(fnamemodify(s:dst, ':h')) |
       \ let s:dst = substitute(s:fcall('simplify', s:dst), '^\.\'.s:separator(), '', '') |
       \ if <bang>1 && s:fcall('filereadable', s:dst) |
-      \   exe 'keepalt saveas '.s:fnameescape(s:dst) |
+      \   exe 'keepalt saveas' fnameescape(s:dst) |
       \ elseif s:fcall('filereadable', s:src) && EunuchRename(s:src, s:dst) |
       \   echoerr 'Failed to rename "'.s:src.'" to "'.s:dst.'"' |
       \ else |
       \   setlocal modified |
-      \   exe 'keepalt saveas! '.s:fnameescape(s:dst) |
+      \   exe 'keepalt saveas!' fnameescape(s:dst) |
       \   if s:src !=# expand('%:p') |
-      \     execute 'bwipe '.s:fnameescape(s:src) |
+      \     execute 'bwipe' fnameescape(s:src) |
       \   endif |
       \   filetype detect |
       \ endif |
@@ -145,7 +135,7 @@ command! -bar -bang -nargs=+ Chmod
 command! -bar -bang -nargs=? -complete=dir Mkdir
       \ call call(<bang>0 ? 's:mkdir_p' : 'mkdir', [empty(<q-args>) ? expand('%:h') : <q-args>]) |
       \ if empty(<q-args>) |
-      \  silent keepalt execute 'file' s:fnameescape(expand('%')) |
+      \  silent keepalt execute 'file' fnameescape(expand('%')) |
       \ endif
 
 command! -bang -complete=file -nargs=+ Cfind   exe s:Grep(<q-bang>, <q-args>, 'find', '')
@@ -190,12 +180,12 @@ function! s:SilentSudoCmd(editor) abort
 endfunction
 
 function! s:SudoSetup(file) abort
-  if !filereadable(a:file) && !exists('#BufReadCmd#'.s:fnameescape(a:file))
-    execute 'autocmd BufReadCmd ' s:fnameescape(a:file) 'exe s:SudoReadCmd()'
+  if !filereadable(a:file) && !exists('#BufReadCmd#'.fnameescape(a:file))
+    execute 'autocmd BufReadCmd ' fnameescape(a:file) 'exe s:SudoReadCmd()'
   endif
-  if !filewritable(a:file) && !exists('#BufWriteCmd#'.s:fnameescape(a:file))
-    execute 'autocmd BufReadPost ' s:fnameescape(a:file) 'set noreadonly'
-    execute 'autocmd BufWriteCmd ' s:fnameescape(a:file) 'exe s:SudoWriteCmd()'
+  if !filewritable(a:file) && !exists('#BufWriteCmd#'.fnameescape(a:file))
+    execute 'autocmd BufReadPost ' fnameescape(a:file) 'set noreadonly'
+    execute 'autocmd BufWriteCmd ' fnameescape(a:file) 'exe s:SudoWriteCmd()'
   endif
 endfunction
 
@@ -266,9 +256,9 @@ function! s:SudoEditInit() abort
   let files = split($SUDO_COMMAND, ' ')[1:-1]
   if len(files) ==# argc()
     for i in range(argc())
-      execute 'autocmd BufEnter' s:fnameescape(argv(i))
+      execute 'autocmd BufEnter' fnameescape(argv(i))
             \ 'if empty(&filetype) || &filetype ==# "conf"'
-            \ '|doautocmd filetypedetect BufReadPost' s:fnameescape(files[i])
+            \ '|doautocmd filetypedetect BufReadPost' fnameescape(files[i])
             \ '|endif'
     endfor
   endif
