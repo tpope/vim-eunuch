@@ -19,7 +19,7 @@ function! s:fnameescape(string) abort
   endif
 endfunction
 
-function! s:separator()
+function! s:separator() abort
   return !exists('+shellslash') || &shellslash ? '/' : '\\'
 endfunction
 
@@ -109,7 +109,7 @@ function! s:Rename_complete(A, L, P) abort
   let prefix = expand('%:p:h').sep
   let files = split(glob(prefix.a:A.'*'), "\n")
   call map(files, 'v:val[strlen(prefix) : -1] . (isdirectory(v:val) ? sep : "")')
-  return join(files + ['..'.s:separator()], "\n")
+  return join(files + ['..' . sep], "\n")
 endfunction
 
 command! -bar -nargs=1 -bang -complete=custom,s:Rename_complete Rename
