@@ -294,7 +294,7 @@ augroup eunuch
   autocmd BufNewFile  * let b:eunuch_new_file = 1
   autocmd BufWritePost * unlet! b:eunuch_new_file
   autocmd BufWritePre *
-        \ if exists('b:eunuch_new_file') && getline(1) =~ '^#!\s*/' |
+        \ if exists('b:eunuch_new_file') && getline(1) =~ '^#!' |
         \   let b:chmod_post = '+x' |
         \ endif
   autocmd BufWritePost,FileWritePost * nested
