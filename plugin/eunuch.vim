@@ -287,6 +287,122 @@ function! s:Wall() abort
   execute win.'wincmd w'
 endfunction
 
+" Adapted from autoload/dist/script.vim.
+let s:interpreters = {
+      \ '.': '/bin/sh',
+      \ 'sh': '/bin/sh',
+      \ 'bash': 'bash',
+      \ 'csh': 'csh',
+      \ 'tcsh': 'tcsh',
+      \ 'zsh': 'zsh',
+      \ 'tcl': 'tclsh',
+      \ 'expect': 'expect',
+      \ 'gnuplot': 'gnuplot',
+      \ 'make': 'make -f',
+      \ 'pike': 'pike',
+      \ 'lua': 'lua',
+      \ 'perl': 'perl',
+      \ 'php': 'php',
+      \ 'python': 'python3',
+      \ 'groovy': 'groovy',
+      \ 'raku': 'raku',
+      \ 'ruby': 'ruby',
+      \ 'javascript': 'node',
+      \ 'bc': 'bc',
+      \ 'sed': 'sed',
+      \ 'ocaml': 'ocaml',
+      \ 'awk': 'awk',
+      \ 'wml': 'wml',
+      \ 'scheme': 'scheme',
+      \ 'cfengine': 'cfengine',
+      \ 'erlang': 'escript',
+      \ 'haskell': 'haskell',
+      \ 'scala': 'scala',
+      \ 'clojure': 'clojure',
+      \ 'pascal': 'instantfpc',
+      \ 'fennel': 'fennel',
+      \ 'routeros': 'rsc',
+      \ 'fish': 'fish',
+      \ 'forth': 'gforth',
+      \ }
+
+function! s:NormalizeInterpreter(str) abort
+  if empty(a:str) || a:str =~# '^[ /]'
+    return a:str
+  elseif a:str =~# '[ \''"#]'
+    return '/usr/bin/env -S ' . a:str
+  else
+    return '/usr/bin/env ' . a:str
+  endif
+endfunction
+
+function! s:FileTypeInterpreter() abort
+  try
+    let ft = get(split(&filetype, '\.'), 0, '.')
+    let configured = get(g:, 'eunuch_interpreters', {})
+    if type(get(configured, ft)) == type(function('tr'))
+      return call(configured[ft], [])
+    elseif get(configured, ft) is# 1 || get(configured, ft) is# get(v:, 'true', 1)
+      return ft ==# '.' ? s:interpreters['.'] : '/usr/bin/env ' . ft
+    elseif empty(get(configured, ft, 1))
+      return ''
+    elseif type(get(configured, ft)) == type('')
+      return s:NormalizeInterpreter(get(configured, ft))
+    endif
+    return s:NormalizeInterpreter(get(s:interpreters, ft, ''))
+  endtry
+endfunction
+
+function! EunuchNewLine(...) abort
+  if a:0 && type(a:1) == type('')
+    return a:1 . (a:1 =~# "\r" ? "\<C-R>=EunuchNewLine()\r" : "")
+  endif
+  if !empty(&buftype) || getline(1) !~# '^#!' || line('.') != 2 || getline(2) !~# '^#\=$'
+    return ""
+  endif
+  let b:eunuch_chmod_shebang = 1
+  let inject = ''
+  let detect = 0
+  let ret = empty(getline(2)) ? "" : "\<BS>"
+  if getline(1) ==# '#!'
+    let inject = s:FileTypeInterpreter()
+    let detect = !empty(inject) && empty(&filetype)
+  else
+    filetype detect
+    if getline(1) =~# '^#![^ /].\{-\}[ \''"#]'
+      let inject = '/usr/bin/env -S '
+    elseif getline(1) =~# '^#![^ /]'
+      let inject = '/usr/bin/env '
+    endif
+  endif
+  if len(inject)
+    let ret .= "\<Up>\<Right>\<Right>" . inject . "\<Home>\<Down>"
+  endif
+  if detect
+    let ret .= "\<C-\>\<C-O>:filetype detect\r"
+  endif
+  return ret
+endfunction
+
+function! s:MapCR() abort
+  imap <silent><script> <SID>EunuchNewLine <C-R>=EunuchNewLine()<CR>
+  let map = maparg('<CR>', 'i', 0, 1)
+  let rhs = substitute(maparg('<CR>', 'i'), '|', '<Bar>', 'g')
+  if get(g:, 'eunuch_no_maps') || rhs =~# 'Eunuch' || get(map, 'buffer')
+    return
+  endif
+  if get(map, 'expr')
+    exe 'imap <script><silent><expr> <CR> EunuchNewLine(' . rhs . ')'
+  elseif rhs =~? '^<cr>' && rhs !~? '<plug>'
+    exe 'imap <silent><script> <CR>' rhs . '<SID>EunuchNewLine'
+  elseif rhs =~? '^<cr>'
+    exe 'imap <silent> <CR>' rhs . '<SID>EunuchNewLine'
+  elseif empty(rhs)
+    imap <script><silent> <CR> <CR><SID>EunuchNewLine
+  endif
+endfunction
+call s:MapCR()
+
 augroup eunuch
   autocmd!
   autocmd BufNewFile  * let b:eunuch_chmod_shebang = 1
@@ -297,7 +413,10 @@ augroup eunuch
         \   edit |
         \ endif |
         \ unlet! b:eunuch_chmod_shebang
+  autocmd InsertLeave * nested if line('.') == 1 && getline(1) ==# @. && @. =~# '^#!\s*\S' |
+        \ filetype detect | endif
   autocmd User FileChmodPost,FileUnlinkPost "
+  autocmd VimEnter * call s:MapCR()
 augroup END
 
 " vim:set sw=2 sts=2:

@@ -18,7 +18,9 @@ include:
 * `:SudoWrite`: Write a privileged file with `sudo`.
 * `:SudoEdit`: Edit a privileged file with `sudo`.
 * File type detection for `sudo -e` is based on original file name.
-* New files created with a shebang line are automatically made executable.
+* Typing a shebang line causes the file type to be re-detected.  Additionally
+  the file will be automically made executable (`chmod +x`) after the next
+  write.
 
 [guard]: https://github.com/guard/guard
 
