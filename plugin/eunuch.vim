@@ -2,12 +2,10 @@
 " Maintainer:   Tim Pope <http://tpo.pe/>
 " Version:      1.2
 
-if exists('g:loaded_eunuch') || &cp || v:version < 703
+if exists('g:loaded_eunuch') || &cp || v:version < 704
   finish
 endif
 let g:loaded_eunuch = 1
-
-let s:nomodeline = v:version > 703 ? '<nomodeline>' : ''
 
 function! s:separator() abort
   return !exists('+shellslash') || &shellslash ? '/' : '\\'
@@ -56,7 +54,7 @@ command! -bar -bang Unlink
       \   echoerr 'Failed to delete "'.expand('%').'"' |
       \ else |
       \   edit! |
-      \   silent exe 'doautocmd' s:nomodeline 'User FileUnlinkPost' |
+      \   silent exe 'doautocmd <nomodeline> User FileUnlinkPost' |
       \ endif
 
 command! -bar -bang Remove Unlink<bang>
@@ -107,7 +105,7 @@ command! -bar -nargs=1 -bang -complete=custom,s:Rename_complete Rename
 
 let s:permlookup = ['---','--x','-w-','-wx','r--','r-x','rw-','rwx']
 function! s:Chmod(bang, perm, ...) abort
-  let autocmd = 'silent doautocmd ' . s:nomodeline . ' User FileChmodPost'
+  let autocmd = 'silent doautocmd <nomodeline> User FileChmodPost'
   let file = a:0 ? expand(join(a:000, ' ')) : @%
   if !a:bang && exists('*setfperm')
     let perm = ''
@@ -205,7 +203,7 @@ function! s:SudoReadCmd() abort
     return 'echoerr ' . string('eunuch.vim: no sudo read support for csh')
   endif
   silent %delete_
-  silent exe 'doautocmd' s:nomodeline 'BufReadPre'
+  silent doautocmd <nomodeline> BufReadPre
   let [silent, cmd] = s:SilentSudoCmd('cat')
   execute silent 'read !' . cmd . ' "%" 2> ' . s:error_file
   let exit_status = v:shell_error
@@ -219,7 +217,7 @@ function! s:SudoReadCmd() abort
 endfunction
 
 function! s:SudoWriteCmd() abort
-  silent exe 'doautocmd' s:nomodeline 'BufWritePre'
+  silent doautocmd <nomodeline> BufWritePre
   let [silent, cmd] = s:SilentSudoCmd('tee')
   let cmd .= ' "%" >/dev/null'
   if &shellpipe =~ '|&'
@@ -233,7 +231,7 @@ function! s:SudoWriteCmd() abort
     return 'echoerr ' . string(error)
   else
     setlocal nomodified
-    return 'silent doautocmd ' . s:nomodeline . ' BufWritePost'
+    return 'silent doautocmd <nomodeline> BufWritePost'
   endif
 endfunction
 
