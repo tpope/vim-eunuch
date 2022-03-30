@@ -289,18 +289,14 @@ endfunction
 
 augroup eunuch
   autocmd!
-  autocmd BufNewFile  * let b:eunuch_new_file = 1
-  autocmd BufWritePost * unlet! b:eunuch_new_file
-  autocmd BufWritePre *
-        \ if exists('b:eunuch_new_file') && getline(1) =~ '^#!' |
-        \   let b:chmod_post = '+x' |
-        \ endif
+  autocmd BufNewFile  * let b:eunuch_chmod_shebang = 1
+  autocmd BufReadPost * if getline(1) !~# '^#!\s*\S' | let b:eunuch_chmod_shebang = 1 | endif
   autocmd BufWritePost,FileWritePost * nested
-        \ if exists('b:chmod_post') |
-        \   call s:Chmod(0, b:chmod_post, '<afile>') |
+        \ if exists('b:eunuch_chmod_shebang') && getline(1) =~# '^#!\s*\S' |
+        \   call s:Chmod(0, '+x', '<afile>') |
         \   edit |
-        \   unlet b:chmod_post |
-        \ endif
+        \ endif |
+        \ unlet! b:eunuch_chmod_shebang
   autocmd User FileChmodPost,FileUnlinkPost "
 augroup END
 
