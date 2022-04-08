@@ -41,9 +41,13 @@ function! EunuchRename(src, dst) abort
 endfunction
 
 function! s:mkdir_p(path) abort
-  let ns = tr(matchstr(a:path, '^\a\a\+:'), ':', '#')
-  if !s:fcall('isdirectory', a:path) && s:fcall('filewritable', a:path) !=# 2 && exists('*' . ns . 'mkdir')
-    call call(ns . 'mkdir', [a:path, 'p'])
+  if !s:fcall('isdirectory', a:path) && s:fcall('filewritable', a:path) !=# 2
+    let ns = matchstr(a:path, '^\a\a\+\ze:')
+    if exists('g:io_' . ns . '.mkdir')
+      call g:io_{ns}.mkdir(a:path, 'p')
+    elseif empty(ns)
+      call mkdir(a:path, 'p')
+    endif
   endif
 endfunction
 
