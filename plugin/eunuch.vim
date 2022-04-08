@@ -47,10 +47,18 @@ function! s:mkdir_p(path) abort
   endif
 endfunction
 
+function! s:Delete(path) abort
+  if has('patch-7.4.1107') && isdirectory(a:path)
+    return delete(a:path, 'd')
+  else
+    return s:fcall('delete', a:path)
+  endif
+endfunction
+
 command! -bar -bang Unlink
       \ if <bang>1 && &modified |
       \   edit |
-      \ elseif s:fcall('delete', expand('%')) |
+      \ elseif s:Delete(@%) |
       \   echoerr 'Failed to delete "'.expand('%').'"' |
       \ else |
       \   edit! |
@@ -62,7 +70,7 @@ command! -bar -bang Remove Unlink<bang>
 command! -bar -bang Delete
       \ let s:file = fnamemodify(bufname(<q-args>),':p') |
       \ execute 'bdelete<bang>' |
-      \ if !bufloaded(s:file) && s:fcall('delete', s:file) |
+      \ if !bufloaded(s:file) && s:Delete(s:file) |
       \   echoerr 'Failed to delete "'.s:file.'"' |
       \ endif |
       \ unlet s:file
