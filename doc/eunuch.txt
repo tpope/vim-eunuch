@@ -85,9 +85,6 @@ COMMANDS                                        *eunuch-commands*
 
 PASSIVE BEHAVIORS                               *eunuch-passive*
 
-File type detection for files edited with `sudoedit` and `sudo -e` happens
-based on the original file name, as found in $SUDO_COMMAND.
-
 If you type a line at the beginning of a file that starts with #! and press
 <CR>, The current file type will be re-detected.  This is implemented using a
 <CR> map.  If you already have a <CR> map, you can incorporate this behavior
