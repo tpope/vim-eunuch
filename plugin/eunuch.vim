@@ -7,6 +7,8 @@ if exists('g:loaded_eunuch') || &cp || v:version < 704
 endif
 let g:loaded_eunuch = 1
 
+let s:slash_pat = exists('+shellslash') ? '[\/]' : '/'
+
 function! s:separator() abort
   return !exists('+shellslash') || &shellslash ? '/' : '\\'
 endfunction
@@ -82,8 +84,8 @@ command! -bar -bang Delete
 command! -bar -nargs=1 -bang -complete=file Move
       \ let s:src = expand('%:p') |
       \ let s:dst = expand(<q-args>) |
-      \ if s:fcall('isdirectory', s:dst) || s:dst[-1:-1] =~# '[\\/]' |
-      \   let s:dst .= (s:dst[-1:-1] =~# '[\\/]' ? '' : s:separator()) .
+      \ if s:fcall('isdirectory', s:dst) || s:dst[-1:-1] =~# s:slash_pat |
+      \   let s:dst .= (s:dst[-1:-1] =~# s:slash_pat ? '' : s:separator()) .
       \     fnamemodify(s:src, ':t') |
       \ endif |
       \ call s:mkdir_p(fnamemodify(s:dst, ':h')) |
@@ -104,16 +106,31 @@ command! -bar -nargs=1 -bang -complete=file Move
       \ unlet s:dst |
       \ filetype detect
 
-function! s:Rename_complete(A, L, P) abort
+" ~/f, $VAR/f, /f, C:/f, url://f, ./f, ../f
+let s:absolute_pat = '^[~$]\|^' . s:slash_pat . '\|^\a\+:\|^\.\.\=\%(' . s:slash_pat . '\|$\)'
+
+function! s:RenameComplete(A, L, P) abort
   let sep = s:separator()
-  let prefix = expand('%:p:h').sep
+  if a:A =~# s:absolute_pat
+    let prefix = ''
+  else
+    let prefix = expand('%:h') . sep
+  endif
   let files = split(glob(prefix.a:A.'*'), "\n")
-  call map(files, 'v:val[strlen(prefix) : -1] . (isdirectory(v:val) ? sep : "")')
-  return join(files + ['..' . sep], "\n")
+  call map(files, 'fnameescape(strpart(v:val, len(prefix))) . (isdirectory(v:val) ? sep : "")')
+  return files
 endfunction
 
-command! -bar -nargs=1 -bang -complete=custom,s:Rename_complete Rename
-      \ Move<bang> %:h/<args>
+function! s:RenameArg(arg) abort
+  if a:arg =~# s:absolute_pat
+    return a:arg
+  else
+    return '%:h/' . a:arg
+  endif
+endfunction
+
+command! -bar -nargs=1 -bang -complete=customlist,s:RenameComplete Rename
+      \ exe 'Move<bang>' escape(s:RenameArg(<q-args>), '"|')
 
 let s:permlookup = ['---','--x','-w-','-wx','r--','r-x','rw-','rwx']
 function! s:Chmod(bang, perm, ...) abort
