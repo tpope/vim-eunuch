@@ -408,7 +408,7 @@ endfunction
 function! s:MapCR() abort
   imap <silent><script> <SID>EunuchNewLine <C-R>=EunuchNewLine()<CR>
   let map = maparg('<CR>', 'i', 0, 1)
-  let rhs = substitute(maparg('<CR>', 'i'), '|', '<Bar>', 'g')
+  let rhs = substitute(get(map, 'rhs', ''), '\c<sid>', '<SNR>' . get(map, 'sid') . '_', 'g')
   if get(g:, 'eunuch_no_maps') || rhs =~# 'Eunuch' || get(map, 'buffer')
     return
   endif
