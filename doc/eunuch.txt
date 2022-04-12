@@ -13,15 +13,6 @@ a buffer and the underlying file at the same time.  Load a `find` or a
 Since this plugin can delete files, you should be aware that this plugin can
 delete files.  Fat fingers beware.
 
-If you create a new file that starts with #!, `chmod +x` will automatically be
-invoked on it when you first write the file.
-
-File type detection for files edited with `sudoedit` and `sudo -e` happens
-based on the original file name.
-
-New init scripts are automatically prepopulated with `/etc/init.d/skeleton`,
-if available.
-
 COMMANDS                                        *eunuch-commands*
 
                                                 *eunuch-:Delete*
@@ -87,6 +78,16 @@ COMMANDS                                        *eunuch-commands*
                         internally, so after the first invocation you can
                         subsequently use :w!.
 
+                        Both sudo commands are implemented using `sudo -e`,
+                        also known as sudoedit.  This has the advantage of
+                        respecting sudoedit permissions in /etc/sudoers, and
+                        the constraint of not allowing edits to symlinks or
+                        files in writable directories, both of which can be
+                        abused in some circumstances to write to files that
+                        were not intended.  These restrictions can be lifted
+                        with the sudoedit_follow and sudoedit_checkdir sudo
+                        options, respectively.
+
                                                 *eunuch-:Wall* *eunuch-:W*
 :Wall                   Like |:wall|, but for windows rather than buffers.
 :W                      It also writes files that haven't changed, which is
@@ -94,6 +95,31 @@ COMMANDS                                        *eunuch-commands*
                         with watchr or guard).  Furthermore, it handily
                         doubles as a safe fallback for people who, like me,
                         accidentally type :W instead of :w a lot.
+
+PASSIVE BEHAVIORS                               *eunuch-passive*
+
+If you type a line at the beginning of a file that starts with #! and press
+<CR>, The current file type will be re-detected.  This is implemented using a
+<CR> map.  If you already have a <CR> map, you can incorporate this behavior
+by returing EunuchCR() in an <expr> map.
+
+Additionally, if the shebang line lacks a path (e.g., `#!bash`), it will be
+normalized by adding `/usr/bin/env` (e.g., `#!/usr/bin/env bash`).  If it
+lacks a command entirely (just `#!`), Eunuch will invert the process and pick
+a command appropriate for the current file type.  For example, if the file
+type is "python", the shebang will become `#!/usr/bin/env python3` .
+
+Finally, adding a shebang line to a new or existing file will cause `chmod +x`
+to be invoked on the file on the next write.
+
+                                                *g:eunuch_interpreters*
+You can customize the generated shebang with g:eunuch_interpreters, a
+dictionary that maps between file types and shell commands:
+>
+        let g:eunuch_interpreters = {
+                \ 'lua': '/usr/bin/lua5.1'}
+<
+This example is a joke.  Do not use Lua.
 
 ABOUT                                           *eunuch-about*
 
