@@ -206,13 +206,20 @@ function! s:SilentSudoCmd(editor) abort
   endif
 endfunction
 
-function! s:SudoSetup(file) abort
-  if !filereadable(a:file) && !exists('#BufReadCmd#'.fnameescape(a:file))
+function! s:SudoSetup(file, resolve_symlink) abort
+  let file = a:file
+  if a:resolve_symlink && getftype(file) ==# 'link'
+    let file = resolve(file)
+    if file !=# a:file
+      silent keepalt exe 'file' fnameescape(file)
+    endif
+  endif
+  if !filereadable(file) && !exists('#BufReadCmd#'.fnameescape(file))
     execute 'autocmd BufReadCmd ' fnameescape(a:file) 'exe s:SudoReadCmd()'
   endif
-  if !filewritable(a:file) && !exists('#BufWriteCmd#'.fnameescape(a:file))
-    execute 'autocmd BufReadPost ' fnameescape(a:file) 'set noreadonly'
-    execute 'autocmd BufWriteCmd ' fnameescape(a:file) 'exe s:SudoWriteCmd()'
+  if !filewritable(file) && !exists('#BufWriteCmd#'.fnameescape(file))
+    execute 'autocmd BufReadPost ' fnameescape(file) 'set noreadonly'
+    execute 'autocmd BufWriteCmd ' fnameescape(file) 'exe s:SudoWriteCmd()'
   endif
 endfunction
 
@@ -227,7 +234,7 @@ function! s:SudoError() abort
   endif
 endfunction
 
-function! s:SudoReadCmd() abort
+function! s:SudoReadCmd(bang) abort
   if &shellpipe =~ '|&'
     return 'echoerr ' . string('eunuch.vim: no sudo read support for csh')
   endif
@@ -265,8 +272,8 @@ function! s:SudoWriteCmd() abort
 endfunction
 
 command! -bar -bang -complete=file -nargs=? SudoEdit
-      \ call s:SudoSetup(fnamemodify(empty(<q-args>) ? expand('%') : <q-args>, ':p')) |
-      \ if !&modified || !empty(<q-args>) |
+      \ call s:SudoSetup(fnamemodify(empty(<q-args>) ? @% : resolve(<q-args>), ':p'), empty(<q-args>) && <bang>0) |
+      \ if !&modified || !empty(<q-args>) || <bang>0 |
       \   edit<bang> <args> |
       \ endif |
       \ if empty(<q-args>) || expand('%:p') ==# fnamemodify(<q-args>, ':p') |
@@ -274,8 +281,8 @@ command! -bar -bang -complete=file -nargs=? SudoEdit
       \ endif
 
 if exists(':SudoWrite') != 2
-command! -bar SudoWrite
-      \ call s:SudoSetup(expand('%:p')) |
+command! -bar -bang SudoWrite
+      \ call s:SudoSetup(expand('%:p'), <bang>0) |
       \ write!
 endif
 
