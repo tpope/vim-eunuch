@@ -272,13 +272,15 @@ function! s:SudoWriteCmd() abort
 endfunction
 
 command! -bar -bang -complete=file -nargs=? SudoEdit
-      \ call s:SudoSetup(fnamemodify(empty(<q-args>) ? @% : resolve(<q-args>), ':p'), empty(<q-args>) && <bang>0) |
-      \ if !&modified || !empty(<q-args>) || <bang>0 |
-      \   edit<bang> <args> |
+      \ let s:arg = resolve(expand(<q-args>)) |
+      \ call s:SudoSetup(fnamemodify(empty(s:arg) ? @% : s:arg, ':p'), empty(s:arg) && <bang>0) |
+      \ if !&modified || !empty(s:arg) || <bang>0 |
+      \   exe 'edit<bang>' fnameescape(s:arg) |
       \ endif |
-      \ if empty(<q-args>) || expand('%:p') ==# fnamemodify(<q-args>, ':p') |
+      \ if empty(<q-args>) || expand('%:p') ==# fnamemodify(s:arg, ':p') |
       \   set noreadonly |
-      \ endif
+      \ endif |
+      \ unlet s:arg
 
 if exists(':SudoWrite') != 2
 command! -bar -bang SudoWrite
