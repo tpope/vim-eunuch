@@ -75,6 +75,16 @@ COMMANDS                                        *eunuch-commands*
                         internally, so after the first invocation you can
                         subsequently use :w!.
 
+                        Both sudo commands are implemented using `sudo -e`,
+                        also known as sudoedit.  This has the advantage of
+                        respecting sudoedit permissions in /etc/sudoers, and
+                        the constraint of not allowing edits to symlinks or
+                        files in writable directories, both of which can be
+                        abused in some circumstances to write to files that
+                        were not intended.  These restrictions can be lifted
+                        with the sudoedit_follow and sudoedit_checkdir sudo
+                        options, respectively.
+
                                                 *eunuch-:Wall* *eunuch-:W*
 :Wall                   Like |:wall|, but for windows rather than buffers.
 :W                      It also writes files that haven't changed, which is
