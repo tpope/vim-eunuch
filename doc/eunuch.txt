@@ -34,9 +34,22 @@ COMMANDS                                        *eunuch-commands*
 :Rename[!] {file}       Like |:Move|, but relative to the current file's
                         containing directory.
 
-                                                *eunuch-:Copy*
-:Copy[!] {file}         Like |:saveas|, but relative to the current file's
-                        containing directory.
+                                                *eunuch-:Duplicate*
+:Duplicate[!] {file}    Like |:saveas|, but relative to the current file's
+                        containing directory. This copies the content of the
+                        current file into the filename specified.
+                        If {file} is a relative path, then the current
+                        file's directory will be used:
+                        with `/home/user/some_file.txt` open,
+                        |:Duplicate| folder/another_file.txt
+                        will create `/home/user/folder/another_file.txt`
+
+                        If the given {file} is an absolute path then it will
+                        use an absolute path:
+                        with `/home/user/some_file.txt` open,
+                        |:Duplicate| /home/other/folder/another_file.txt
+                        will create `/home/other/folder/another_file.txt`
+
                                                 *eunuch-:Chmod*
 :Chmod {mode}           Change the permissions of the current file.
 

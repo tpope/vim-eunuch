@@ -132,9 +132,9 @@ endfunction
 command! -bar -nargs=1 -bang -complete=customlist,s:RenameComplete Rename
       \ exe 'Move<bang>' escape(s:RenameArg(<q-args>), '"|')
 
-command! -bar -nargs=1 -bang -complete=custom,s:Rename_complete Copy
+command! -bar -nargs=1 -bang -complete=custom,s:RenameComplete Duplicate
       \ let s:src = expand('%:p') |
-      \ let s:dst = expand("%:h")."/".expand(<q-args>) |
+      \ let s:dst = expand(escape(s:RenameArg(<q-args>, '"|'))) |
       \ if s:fcall('isdirectory', s:dst) || s:dst[-1:-1] =~# '[\\/]' |
       \   let s:dst .= (s:dst[-1:-1] =~# '[\\/]' ? '' : s:separator()) .
       \     fnamemodify(s:src, ':t') |
