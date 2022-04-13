@@ -234,7 +234,7 @@ function! s:SudoError() abort
   endif
 endfunction
 
-function! s:SudoReadCmd(bang) abort
+function! s:SudoReadCmd() abort
   if &shellpipe =~ '|&'
     return 'echoerr ' . string('eunuch.vim: no sudo read support for csh')
   endif
