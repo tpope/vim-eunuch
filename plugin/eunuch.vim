@@ -196,6 +196,8 @@ function! s:SilentSudoCmd(editor) abort
   let cmd = 'env SUDO_EDITOR=' . a:editor . ' VISUAL=' . a:editor . ' sudo -e'
   let local_nvim = has('nvim') && len($DISPLAY . $SECURITYSESSIONID . $TERM_PROGRAM)
   if !local_nvim && (!has('gui_running') || &guioptions =~# '!')
+    redraw
+    echo
     return ['silent', cmd]
   elseif !empty($SUDO_ASKPASS) ||
         \ filereadable('/etc/sudo.conf') &&
