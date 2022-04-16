@@ -435,7 +435,10 @@ augroup eunuch
   autocmd InsertLeave * nested if line('.') == 1 && getline(1) ==# @. && @. =~# '^#!\s*\S' |
         \ filetype detect | endif
   autocmd User FileChmodPost,FileUnlinkPost "
-  autocmd VimEnter * call s:MapCR()
+  autocmd VimEnter * call s:MapCR() |
+        \ if has('patch-8.1.1113') || has('nvim-0.4') |
+        \   exe 'autocmd eunuch InsertEnter * ++once call s:MapCR()' |
+        \ endif
 augroup END
 
 " vim:set sw=2 sts=2:
