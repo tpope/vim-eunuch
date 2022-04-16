@@ -102,9 +102,7 @@ command! -bar -nargs=1 -bang -complete=file Move
       \   endif |
       \   filetype detect |
       \ endif |
-      \ unlet s:src |
-      \ unlet s:dst |
-      \ filetype detect
+      \ unlet s:src s:dst
 
 " ~/f, $VAR/f, /f, C:/f, url://f, ./f, ../f
 let s:absolute_pat = '^[~$]\|^' . s:slash_pat . '\|^\a\+:\|^\.\.\=\%(' . s:slash_pat . '\|$\)'
