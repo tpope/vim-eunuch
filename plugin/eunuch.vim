@@ -21,6 +21,10 @@ function! s:fcall(fn, path, ...) abort
   return call(s:ffn(a:fn, a:path), [a:path] + a:000)
 endfunction
 
+function! s:MinusOne(...) abort
+  return -1
+endfunction
+
 function! EunuchRename(src, dst) abort
   if a:src !~# '^\a\a\+:' && a:dst !~# '^\a\a\+:'
     return rename(a:src, a:dst)
@@ -42,15 +46,16 @@ function! EunuchRename(src, dst) abort
   endtry
 endfunction
 
-function! s:mkdir_p(path) abort
-  if !s:fcall('isdirectory', a:path) && s:fcall('filewritable', a:path) !=# 2
-    let ns = matchstr(a:path, '^\a\a\+\ze:')
+function! s:MkdirCallable(name) abort
+  let ns = matchstr(a:name, '^\a\a\+\ze:')
+  if !s:fcall('isdirectory', a:name) && s:fcall('filewritable', a:name) !=# 2
     if exists('g:io_' . ns . '.mkdir')
-      call g:io_{ns}.mkdir(a:path, 'p')
+      return [g:io_{ns}.mkdir, [a:name, 'p']]
     elseif empty(ns)
-      call mkdir(a:path, 'p')
+      return ['mkdir', [a:name, 'p']]
     endif
   endif
+  return ['s:MinusOne', []]
 endfunction
 
 function! s:Delete(path) abort
@@ -60,6 +65,17 @@ function! s:Delete(path) abort
     return s:fcall('delete', a:path)
   endif
 endfunction
+
+command! -bar -bang -nargs=? -complete=dir Mkdir
+      \ let s:dst = empty(<q-args>) ? expand('%:h') : <q-args> |
+      \ if call('call', s:MkdirCallable(s:dst)) == -1 |
+      \   echohl WarningMsg |
+      \   echo "Directory already exists: " . s:dst |
+      \   echohl NONE |
+      \ elseif empty(<q-args>) |
+      \    silent keepalt execute 'file' fnameescape(@%) |
+      \ endif |
+      \ unlet s:dst
 
 command! -bar -bang Unlink
       \ if <bang>1 && &modified |
@@ -88,7 +104,7 @@ command! -bar -nargs=1 -bang -complete=file Move
       \   let s:dst .= (s:dst[-1:-1] =~# s:slash_pat ? '' : s:separator()) .
       \     fnamemodify(s:src, ':t') |
       \ endif |
-      \ call s:mkdir_p(fnamemodify(s:dst, ':h')) |
+      \ call call('call', s:MkdirCallable(fnamemodify(s:dst, ':h'), 'p')) |
       \ let s:dst = substitute(s:fcall('simplify', s:dst), '^\.\'.s:separator(), '', '') |
       \ if <bang>1 && s:fcall('filereadable', s:dst) |
       \   exe 'keepalt saveas' fnameescape(s:dst) |
@@ -156,12 +172,6 @@ endfunction
 
 command! -bar -bang -nargs=+ Chmod
       \ exe s:Chmod(<bang>0, <f-args>)
-
-command! -bar -bang -nargs=? -complete=dir Mkdir
-      \ call call(<bang>0 ? 's:mkdir_p' : 'mkdir', [empty(<q-args>) ? expand('%:h') : <q-args>]) |
-      \ if empty(<q-args>) |
-      \  silent keepalt execute 'file' fnameescape(expand('%')) |
-      \ endif
 
 command! -bang -complete=file -nargs=+ Cfind   exe s:Grep(<q-bang>, <q-args>, 'find', '')
 command! -bang -complete=file -nargs=+ Clocate exe s:Grep(<q-bang>, <q-args>, 'locate', '')
