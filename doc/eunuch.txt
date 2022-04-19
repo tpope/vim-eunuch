@@ -47,7 +47,6 @@ COMMANDS                                        *eunuch-commands*
                         the current file.
 
                                                 *eunuch-:Cfind*
-                                                *eunuch-:Find*
 :Cfind[!] {args}        Run `find` and load the results into the quickfix
                         list.  Jump to the first result unless ! is given.
 
@@ -56,7 +55,6 @@ COMMANDS                                        *eunuch-commands*
                         list.  Jump to the first result unless ! is given.
 
                                                 *eunuch-:Clocate*
-                                                *eunuch-:Locate*
 :Clocate[!] {args}      Run `locate` and load the results into the quickfix
                         list.  Jump to the first result unless ! is given.
 
