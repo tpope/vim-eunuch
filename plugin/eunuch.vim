@@ -104,7 +104,7 @@ command! -bar -nargs=1 -bang -complete=file Move
       \   let s:dst .= (s:dst[-1:-1] =~# s:slash_pat ? '' : s:separator()) .
       \     fnamemodify(s:src, ':t') |
       \ endif |
-      \ call call('call', s:MkdirCallable(fnamemodify(s:dst, ':h'), 'p')) |
+      \ call call('call', s:MkdirCallable(fnamemodify(s:dst, ':h'))) |
       \ let s:dst = substitute(s:fcall('simplify', s:dst), '^\.\'.s:separator(), '', '') |
       \ if <bang>1 && s:fcall('filereadable', s:dst) |
       \   exe 'keepalt saveas' fnameescape(s:dst) |
