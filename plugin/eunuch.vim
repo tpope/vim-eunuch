@@ -97,7 +97,7 @@ command! -bar -bang Delete
       \ endif |
       \ unlet s:file
 
-command! -bar -nargs=1 -bang -complete=file Move
+command! -bar -nargs=+ -bang -complete=file Move
       \ let s:src = expand('%:p') |
       \ let s:dst = expand(<q-args>) |
       \ if s:fcall('isdirectory', s:dst) || s:dst[-1:-1] =~# s:slash_pat |
@@ -143,7 +143,7 @@ function! s:RenameArg(arg) abort
   endif
 endfunction
 
-command! -bar -nargs=1 -bang -complete=customlist,s:RenameComplete Rename
+command! -bar -nargs=+ -bang -complete=customlist,s:RenameComplete Rename
       \ exe 'Move<bang>' escape(s:RenameArg(<q-args>), '"|')
 
 let s:permlookup = ['---','--x','-w-','-wx','r--','r-x','rw-','rwx']
@@ -275,7 +275,7 @@ function! s:SudoWriteCmd() abort
   endif
 endfunction
 
-command! -bar -bang -complete=file -nargs=? SudoEdit
+command! -bar -bang -complete=file -nargs=+ SudoEdit
       \ let s:arg = resolve(expand(<q-args>)) |
       \ call s:SudoSetup(fnamemodify(empty(s:arg) ? @% : s:arg, ':p'), empty(s:arg) && <bang>0) |
       \ if !&modified || !empty(s:arg) || <bang>0 |
