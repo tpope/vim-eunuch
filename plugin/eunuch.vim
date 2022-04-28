@@ -112,10 +112,12 @@ command! -bar -nargs=+ -bang -complete=file Move
       \   echoerr 'Failed to rename "'.s:src.'" to "'.s:dst.'"' |
       \ else |
       \   setlocal modified |
-      \   exe 'keepalt saveas!' fnameescape(s:dst) |
-      \   if s:src !=# expand('%:p') |
-      \     execute 'bwipe' fnameescape(s:src) |
+      \   let s:last_bufnr = bufnr('$') |
+      \   exe 'silent keepalt file' fnameescape(s:dst) |
+      \   if remove(s:, 'last_bufnr') !=# bufnr('$') |
+      \     $bwipe |
       \   endif |
+      \   write! |
       \   filetype detect |
       \ endif |
       \ unlet s:src s:dst
