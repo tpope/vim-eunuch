@@ -90,7 +90,7 @@ command! -bar -bang Unlink
 command! -bar -bang Remove Unlink<bang>
 
 command! -bar -bang Delete
-      \ let s:file = fnamemodify(bufname(<q-args>),':p') |
+      \ let s:file = expand('%:p') |
       \ execute 'bdelete<bang>' |
       \ if !bufloaded(s:file) && s:Delete(s:file) |
       \   echoerr 'Failed to delete "'.s:file.'"' |
