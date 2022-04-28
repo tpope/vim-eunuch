@@ -128,7 +128,7 @@ command! -bar -nargs=+ -bang -complete=file Move
       \   let s:last_bufnr = bufnr('$') |
       \   exe 'silent keepalt file' fnameescape(s:dst) |
       \   if remove(s:, 'last_bufnr') !=# bufnr('$') |
-      \     $bwipe |
+      \     exe bufnr('$') . 'bwipe' |
       \   endif |
       \   write! |
       \   filetype detect |
