@@ -97,15 +97,28 @@ command! -bar -bang Delete
       \ endif |
       \ unlet s:file
 
+function! s:FileDest(q_args) abort
+  let file = expand(a:q_args)
+  if file =~# s:slash_pat . '$'
+    let file .=  expand('%:t')
+  elseif s:fcall('isdirectory', file)
+    let file .= s:separator() .  expand('%:t')
+  endif
+  return substitute(file, '^\.' . s:slash_pat, '', '')
+endfunction
+
+command! -bar -nargs=+ -bang -complete=file Copy
+      \ let s:dst = s:FileDest(<q-args>) |
+      \ call call('call', s:MkdirCallable(fnamemodify(s:dst, ':h'))) |
+      \ let s:dst = s:fcall('simplify', s:dst) |
+      \ exe expand('<mods>') 'saveas<bang>' fnameescape(remove(s:, 'dst')) |
+      \ filetype detect
+
 command! -bar -nargs=+ -bang -complete=file Move
       \ let s:src = expand('%:p') |
-      \ let s:dst = expand(<q-args>) |
-      \ if s:fcall('isdirectory', s:dst) || s:dst[-1:-1] =~# s:slash_pat |
-      \   let s:dst .= (s:dst[-1:-1] =~# s:slash_pat ? '' : s:separator()) .
-      \     fnamemodify(s:src, ':t') |
-      \ endif |
+      \ let s:dst = s:FileDest(<q-args>) |
       \ call call('call', s:MkdirCallable(fnamemodify(s:dst, ':h'))) |
-      \ let s:dst = substitute(s:fcall('simplify', s:dst), '^\.\'.s:separator(), '', '') |
+      \ let s:dst = s:fcall('simplify', s:dst) |
       \ if <bang>1 && s:fcall('filereadable', s:dst) |
       \   exe 'keepalt saveas' fnameescape(s:dst) |
       \ elseif s:fcall('filereadable', s:src) && EunuchRename(s:src, s:dst) |
@@ -144,6 +157,9 @@ function! s:RenameArg(arg) abort
     return '%:h/' . a:arg
   endif
 endfunction
+
+command! -bar -nargs=+ -bang -complete=customlist,s:RenameComplete Duplicate
+      \ exe 'Copy<bang>' escape(s:RenameArg(<q-args>), '"|')
 
 command! -bar -nargs=+ -bang -complete=customlist,s:RenameComplete Rename
       \ exe 'Move<bang>' escape(s:RenameArg(<q-args>), '"|')

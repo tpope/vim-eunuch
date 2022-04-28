@@ -27,12 +27,23 @@ COMMANDS                                        *eunuch-commands*
                                                 *eunuch-:Remove*
 :Remove[!]              Alias for :Unlink.
 
+                                                *eunuch-:Copy*
+:Copy[!] {file}         Small wrapper around |:saveas|.  Parent directories
+                        are automatically created.  If the argument itself is
+                        a directory, a file with the same basename will be
+                        created inside that directory.
+
+                                                *eunuch-:Duplicate*
+:Duplicate[!] {file}    Like |:Copy|, but the argument is taken as relative to
+                        the current file's parent directory.
+
                                                 *eunuch-:Move*
-:Move[!] {file}         Like |:saveas|, but delete the old file afterwards.
+:Move[!] {file}         Like |:Copy|, but delete the old file and |:bwipe| the
+                        old buffer afterwards.
 
                                                 *eunuch-:Rename*
-:Rename[!] {file}       Like |:Move|, but relative to the current file's
-                        containing directory.
+:Rename[!] {file}       Like |:Move|, but the argument is taken as relative to
+                        the current file's parent directory.
 
                                                 *eunuch-:Chmod*
 :Chmod {mode}           Change the permissions of the current file.
