@@ -21,6 +21,15 @@ function! s:fcall(fn, path, ...) abort
   return call(s:ffn(a:fn, a:path), [a:path] + a:000)
 endfunction
 
+function! s:AbortOnError(cmd) abort
+  try
+    exe a:cmd
+  catch '^Vim(\w\+):E\d'
+    return 'return ' . string('echoerr ' . string(matchstr(v:exception, ':\zsE\d.*')))
+  endtry
+  return ''
+endfunction
+
 function! s:MinusOne(...) abort
   return -1
 endfunction
@@ -114,26 +123,33 @@ command! -bar -nargs=+ -bang -complete=file Copy
       \ exe expand('<mods>') 'saveas<bang>' fnameescape(remove(s:, 'dst')) |
       \ filetype detect
 
-command! -bar -nargs=+ -bang -complete=file Move
-      \ let s:src = expand('%:p') |
-      \ let s:dst = s:FileDest(<q-args>) |
-      \ call call('call', s:MkdirCallable(fnamemodify(s:dst, ':h'))) |
-      \ let s:dst = s:fcall('simplify', s:dst) |
-      \ if <bang>1 && s:fcall('filereadable', s:dst) |
-      \   exe 'keepalt saveas' fnameescape(s:dst) |
-      \ elseif s:fcall('filereadable', s:src) && EunuchRename(s:src, s:dst) |
-      \   echoerr 'Failed to rename "'.s:src.'" to "'.s:dst.'"' |
-      \ else |
-      \   setlocal modified |
-      \   let s:last_bufnr = bufnr('$') |
-      \   exe 'silent keepalt file' fnameescape(s:dst) |
-      \   if remove(s:, 'last_bufnr') !=# bufnr('$') |
-      \     exe bufnr('$') . 'bwipe' |
-      \   endif |
-      \   write! |
-      \   filetype detect |
-      \ endif |
-      \ unlet s:src s:dst
+function! s:Move(bang, arg) abort
+  let dst = s:FileDest(a:arg)
+  exe s:AbortOnError('call call("call", s:MkdirCallable(' . string(fnamemodify(dst, ':h')) . '))')
+  let dst = s:fcall('simplify', dst)
+  if !a:bang && s:fcall('filereadable', dst)
+    let confirm = &confirm
+    try
+      if confirm | set noconfirm | endif
+      exe s:AbortOnError('keepalt saveas ' . fnameescape(dst))
+    finally
+      if confirm | set confirm | endif
+    endtry
+  endif
+  if s:fcall('filereadable', @%) && EunuchRename(@%, dst)
+    return 'echoerr ' . string('Failed to rename "'.@%.'" to "'.dst.'"')
+  else
+    let last_bufnr = bufnr('$')
+    exe s:AbortOnError('silent keepalt file ' . fnameescape(dst))
+    if bufnr('$') != last_bufnr
+      exe bufnr('$') . 'bwipe'
+    endif
+    setlocal modified
+    return 'write!|filetype detect'
+  endif
+endfunction
+
+command! -bar -nargs=+ -bang -complete=file Move exe s:Move(<bang>0, <q-args>)
 
 " ~/f, $VAR/f, /f, C:/f, url://f, ./f, ../f
 let s:absolute_pat = '^[~$]\|^' . s:slash_pat . '\|^\a\+:\|^\.\.\=\%(' . s:slash_pat . '\|$\)'
