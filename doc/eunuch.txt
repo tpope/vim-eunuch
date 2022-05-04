@@ -10,22 +10,20 @@ Vim sugar for the UNIX shell commands that need it the most.  Delete or rename
 a buffer and the underlying file at the same time.  Load a `find` or a
 `locate` into the quickfix list.  And so on.
 
-Since this plugin can delete files, you should be aware that this plugin can
-delete files.  Fat fingers beware.
-
 COMMANDS                                        *eunuch-commands*
 
-                                                *eunuch-:Delete*
-:Delete[!]              |:bdelete|, and, if successful, delete the file from
-                        disk.  If a bang is given, it is passed along to
-                        :bdelete.
-
                                                 *eunuch-:Unlink*
-:Unlink[!]              Delete the file from disk and reload the buffer.
-                        If a bang is given, discard unsaved changes.
+:Unlink[!]              Delete the file from disk and reload the buffer.  If
+                        you change your mind, the contents of the buffer can
+                        be restored with |u| (see 'undoreload').
 
                                                 *eunuch-:Remove*
 :Remove[!]              Alias for :Unlink.
+
+                                                *eunuch-:Delete*
+:Delete[!]              Delete the file from disk and |:bdelete| the buffer.
+                        This cannot be undone, and thus a `!` is required to
+                        delete non-empty files.
 
                                                 *eunuch-:Copy*
 :Copy[!] {file}         Small wrapper around |:saveas|.  Parent directories

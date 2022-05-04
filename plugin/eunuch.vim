@@ -86,11 +86,21 @@ command! -bar -bang -nargs=? -complete=dir Mkdir
       \ endif |
       \ unlet s:dst
 
+function! s:DeleteError(file) abort
+  if empty(s:fcall('getftype', a:file))
+    return 'Could not find "' . a:file . '" on disk'
+  else
+    return 'Failed to delete "' . a:file . '"'
+  endif
+endfunction
+
 command! -bar -bang Unlink
       \ if <bang>1 && &modified |
       \   edit |
+      \ elseif <bang>1 && &undoreload >= 0 && line('$') >= &undoreload |
+      \   echoerr "Buffer too big for 'undoreload' (add ! to override)" |
       \ elseif s:Delete(@%) |
-      \   echoerr 'Failed to delete "'.expand('%').'"' |
+      \   echoerr s:DeleteError(@%) |
       \ else |
       \   edit! |
       \   silent exe 'doautocmd <nomodeline> User FileUnlinkPost' |
@@ -99,12 +109,16 @@ command! -bar -bang Unlink
 command! -bar -bang Remove Unlink<bang>
 
 command! -bar -bang Delete
-      \ let s:file = expand('%:p') |
-      \ execute 'bdelete<bang>' |
-      \ if !bufloaded(s:file) && s:Delete(s:file) |
-      \   echoerr 'Failed to delete "'.s:file.'"' |
-      \ endif |
-      \ unlet s:file
+      \ if <bang>1 && !(line('$') == 1 && empty(getline(1)) || s:fcall('getftype', @%) !=# 'file') |
+      \   echoerr "File not empty (add ! to override)" |
+      \ else |
+      \   let s:file = expand('%:p') |
+      \   execute 'bdelete<bang>' |
+      \   if !bufloaded(s:file) && s:Delete(s:file) |
+      \     echoerr s:DeleteError(s:sfile) |
+      \   endif |
+      \   unlet s:file |
+      \ endif
 
 function! s:FileDest(q_args) abort
   let file = expand(a:q_args)
