@@ -264,6 +264,9 @@ function! s:SilentSudoCmd(editor) abort
   endif
 endfunction
 
+augroup eunuch_sudo
+augroup END
+
 function! s:SudoSetup(file, resolve_symlink) abort
   let file = a:file
   if a:resolve_symlink && getftype(file) ==# 'link'
@@ -272,12 +275,16 @@ function! s:SudoSetup(file, resolve_symlink) abort
       silent keepalt exe 'file' fnameescape(file)
     endif
   endif
-  if !filereadable(file) && !exists('#BufReadCmd#'.fnameescape(file))
-    execute 'autocmd BufReadCmd ' fnameescape(a:file) 'exe s:SudoReadCmd()'
+  let file = substitute(file, s:slash_pat, '/', 'g')
+  if file !~# '^\a\+:\|^/'
+    let file = substitute(getcwd(), s:slash_pat, '/', 'g') . '/' . file
   endif
-  if !filewritable(file) && !exists('#BufWriteCmd#'.fnameescape(file))
-    execute 'autocmd BufReadPost ' fnameescape(file) 'set noreadonly'
-    execute 'autocmd BufWriteCmd ' fnameescape(file) 'exe s:SudoWriteCmd()'
+  if !filereadable(file) && !exists('#eunuch_sudo#BufReadCmd#'.fnameescape(file))
+    execute 'autocmd eunuch_sudo BufReadCmd ' fnameescape(file) 'exe s:SudoReadCmd()'
+  endif
+  if !filewritable(file) && !exists('#eunuch_sudo#BufWriteCmd#'.fnameescape(file))
+    execute 'autocmd eunuch_sudo BufReadPost' fnameescape(file) 'set noreadonly'
+    execute 'autocmd eunuch_sudo BufWriteCmd' fnameescape(file) 'exe s:SudoWriteCmd()'
   endif
 endfunction
 
@@ -337,6 +344,7 @@ command! -bar -bang -complete=file -nargs=+ SudoEdit
 if exists(':SudoWrite') != 2
 command! -bar -bang SudoWrite
       \ call s:SudoSetup(expand('%:p'), <bang>0) |
+      \ setlocal noreadonly |
       \ write!
 endif
 
