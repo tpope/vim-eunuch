@@ -5,9 +5,8 @@ include:
 
 * `:Delete`: Delete a buffer and the file on disk simultaneously.
 * `:Unlink`: Like `:Delete`, but keeps the now empty buffer.
-* `:Move`: Rename a buffer and the file on disk simultaneously.
-* `:Rename`: Like `:Move`, but relative to the current file's containing
-  directory.
+* `:Move`: Rename a buffer and the file on disk simultaneously.  See also
+  `:Rename`, `:Copy`, and `:Duplicate`.
 * `:Chmod`: Change the permissions of the current file.
 * `:Mkdir`: Create a directory, defaulting to the parent of the current file.
 * `:Cfind`: Run `find` and load the results into the quickfix list.
