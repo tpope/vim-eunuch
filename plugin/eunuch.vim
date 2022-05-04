@@ -95,9 +95,7 @@ function! s:DeleteError(file) abort
 endfunction
 
 command! -bar -bang Unlink
-      \ if <bang>1 && &modified |
-      \   edit |
-      \ elseif <bang>1 && &undoreload >= 0 && line('$') >= &undoreload |
+      \ if <bang>1 && &undoreload >= 0 && line('$') >= &undoreload |
       \   echoerr "Buffer too big for 'undoreload' (add ! to override)" |
       \ elseif s:Delete(@%) |
       \   echoerr s:DeleteError(@%) |
