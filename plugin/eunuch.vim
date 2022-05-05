@@ -10,7 +10,7 @@ let g:loaded_eunuch = 1
 let s:slash_pat = exists('+shellslash') ? '[\/]' : '/'
 
 function! s:separator() abort
-  return !exists('+shellslash') || &shellslash ? '/' : '\\'
+  return !exists('+shellslash') || &shellslash ? '/' : '\'
 endfunction
 
 function! s:ffn(fn, path) abort
