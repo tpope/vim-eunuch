@@ -12,13 +12,10 @@ a buffer and the underlying file at the same time.  Load a `find` or a
 
 COMMANDS                                        *eunuch-commands*
 
-                                                *eunuch-:Unlink*
-:Unlink[!]              Delete the file from disk and reload the buffer.  If
-                        you change your mind, the contents of the buffer can
+                                        *eunuch-:Remove* *eunuch-:Unlink*
+:Remove[!]              Delete the file from disk and reload the buffer.  If
+:Unlink[!]              you change your mind, the contents of the buffer can
                         be restored with |u| (see 'undoreload').
-
-                                                *eunuch-:Remove*
-:Remove[!]              Alias for :Unlink.
 
                                                 *eunuch-:Delete*
 :Delete[!]              Delete the file from disk and |:bdelete| the buffer.
