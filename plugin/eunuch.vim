@@ -1,6 +1,6 @@
 " eunuch.vim - Helpers for UNIX
 " Maintainer:   Tim Pope <http://tpo.pe/>
-" Version:      1.2
+" Version:      1.3
 
 if exists('g:loaded_eunuch') || &cp || v:version < 704
   finish
