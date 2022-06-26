@@ -219,9 +219,14 @@ endfunction
 command! -bar -bang -nargs=+ Chmod
       \ exe s:Chmod(<bang>0, <f-args>)
 
-command! -bang -complete=file -nargs=+ Cfind   exe s:Grep(<q-bang>, <q-args>, 'find', '')
+let s:find = 'find'
+if executable('fd')
+  let s:find = 'fd'
+endif
+
+command! -bang -complete=file -nargs=+ Cfind   exe s:Grep(<q-bang>, <q-args>, s:find, '')
 command! -bang -complete=file -nargs=+ Clocate exe s:Grep(<q-bang>, <q-args>, 'locate', '')
-command! -bang -complete=file -nargs=+ Lfind   exe s:Grep(<q-bang>, <q-args>, 'find', 'l')
+command! -bang -complete=file -nargs=+ Lfind   exe s:Grep(<q-bang>, <q-args>, s:find, 'l')
 command! -bang -complete=file -nargs=+ Llocate exe s:Grep(<q-bang>, <q-args>, 'locate', 'l')
 function! s:Grep(bang, args, prg, type) abort
   let grepprg = &l:grepprg
