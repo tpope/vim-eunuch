@@ -436,7 +436,7 @@ endfunction
 
 function! EunuchNewLine(...) abort
   if a:0 && type(a:1) == type('')
-    return a:1 . (a:1 =~# "\r" ? "\<C-R>=EunuchNewLine()\r" : "")
+    return a:1 . (a:1 =~# "\r" && empty(&buftype) ? "\<C-R>=EunuchNewLine()\r" : "")
   endif
   if !empty(&buftype) || getline(1) !~# '^#!' || line('.') != 2 || getline(2) !~# '^#\=$'
     return ""
@@ -479,7 +479,7 @@ function! s:MapCR() abort
   elseif rhs =~? '^<cr>'
     exe 'imap <silent> <CR>' rhs . '<SID>EunuchNewLine'
   elseif empty(rhs)
-    imap <script><silent> <CR> <CR><SID>EunuchNewLine
+    imap <script><silent><expr> <CR> EunuchNewLine("\r")
   endif
 endfunction
 call s:MapCR()
