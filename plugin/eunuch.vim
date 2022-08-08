@@ -370,8 +370,8 @@ endfunction
 
 " Adapted from autoload/dist/script.vim.
 let s:interpreters = {
-      \ '.': '/bin/sh',
-      \ 'sh': '/bin/sh',
+      \ '.': 'sh',
+      \ 'sh': 'sh',
       \ 'bash': 'bash',
       \ 'csh': 'csh',
       \ 'tcsh': 'tcsh',
