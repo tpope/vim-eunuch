@@ -434,11 +434,13 @@ function! s:FileTypeInterpreter() abort
   endtry
 endfunction
 
+let s:shebang_pat = '^#!\s*[/[:alnum:]_-]'
+
 function! EunuchNewLine(...) abort
   if a:0 && type(a:1) == type('')
     return a:1 . (a:1 =~# "\r" && empty(&buftype) ? "\<C-R>=EunuchNewLine()\r" : "")
   endif
-  if !empty(&buftype) || getline(1) !~# '^#!' || line('.') != 2 || getline(2) !~# '^#\=$'
+  if !empty(&buftype) || getline(1) !~# '^#!$\|' . s:shebang_pat || line('.') != 2 || getline(2) !~# '^#\=$'
     return ""
   endif
   let b:eunuch_chmod_shebang = 1
@@ -489,12 +491,12 @@ augroup eunuch
   autocmd BufNewFile  * let b:eunuch_chmod_shebang = 1
   autocmd BufReadPost * if getline(1) !~# '^#!\s*\S' | let b:eunuch_chmod_shebang = 1 | endif
   autocmd BufWritePost,FileWritePost * nested
-        \ if exists('b:eunuch_chmod_shebang') && getline(1) =~# '^#!\s*\S' |
+        \ if exists('b:eunuch_chmod_shebang') && getline(1) =~# s:shebang_pat |
         \   call s:Chmod(0, '+x', '<afile>') |
         \   edit |
         \ endif |
         \ unlet! b:eunuch_chmod_shebang
-  autocmd InsertLeave * nested if line('.') == 1 && getline(1) ==# @. && @. =~# '^#!\s*\S' |
+  autocmd InsertLeave * nested if line('.') == 1 && getline(1) ==# @. && @. =~# s:shebang_pat |
         \ filetype detect | endif
   autocmd User FileChmodPost,FileUnlinkPost "
   autocmd VimEnter * call s:MapCR() |
