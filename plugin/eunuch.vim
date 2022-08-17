@@ -481,7 +481,7 @@ function! s:MapCR() abort
   elseif rhs =~? '^<cr>'
     exe 'imap <silent> <CR>' rhs . '<SID>EunuchNewLine'
   elseif empty(rhs)
-    imap <script><silent><expr> <CR> EunuchNewLine("\r")
+    imap <script><silent><expr> <CR> EunuchNewLine("<Bslash>r")
   endif
 endfunction
 call s:MapCR()
