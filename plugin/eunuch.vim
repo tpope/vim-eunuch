@@ -446,7 +446,7 @@ function! EunuchNewLine(...) abort
   let b:eunuch_chmod_shebang = 1
   let inject = ''
   let detect = 0
-  let ret = empty(getline(2)) ? "" : "\<BS>"
+  let ret = empty(getline(2)) ? "" : "\<C-U>"
   if getline(1) ==# '#!'
     let inject = s:FileTypeInterpreter()
     let detect = !empty(inject) && empty(&filetype)
