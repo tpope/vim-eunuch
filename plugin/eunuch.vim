@@ -119,7 +119,7 @@ command! -bar -bang Delete
       \ endif
 
 function! s:FileDest(q_args) abort
-  let file = expand(a:q_args)
+  let file = a:q_args
   if file =~# s:slash_pat . '$'
     let file .=  expand('%:t')
   elseif s:fcall('isdirectory', file)
@@ -128,7 +128,7 @@ function! s:FileDest(q_args) abort
   return substitute(file, '^\.' . s:slash_pat, '', '')
 endfunction
 
-command! -bar -nargs=+ -bang -complete=file Copy
+command! -bar -nargs=1 -bang -complete=file Copy
       \ let s:dst = s:FileDest(<q-args>) |
       \ call call('call', s:MkdirCallable(fnamemodify(s:dst, ':h'))) |
       \ let s:dst = s:fcall('simplify', s:dst) |
@@ -161,7 +161,7 @@ function! s:Move(bang, arg) abort
   endif
 endfunction
 
-command! -bar -nargs=+ -bang -complete=file Move exe s:Move(<bang>0, <q-args>)
+command! -bar -nargs=1 -bang -complete=file Move exe s:Move(<bang>0, <q-args>)
 
 " ~/f, $VAR/f, /f, C:/f, url://f, ./f, ../f
 let s:absolute_pat = '^[~$]\|^' . s:slash_pat . '\|^\a\+:\|^\.\.\=\%(' . s:slash_pat . '\|$\)'
@@ -186,10 +186,10 @@ function! s:RenameArg(arg) abort
   endif
 endfunction
 
-command! -bar -nargs=+ -bang -complete=customlist,s:RenameComplete Duplicate
+command! -bar -nargs=1 -bang -complete=customlist,s:RenameComplete Duplicate
       \ exe 'Copy<bang>' escape(s:RenameArg(<q-args>), '"|')
 
-command! -bar -nargs=+ -bang -complete=customlist,s:RenameComplete Rename
+command! -bar -nargs=1 -bang -complete=customlist,s:RenameComplete Rename
       \ exe 'Move<bang>' escape(s:RenameArg(<q-args>), '"|')
 
 let s:permlookup = ['---','--x','-w-','-wx','r--','r-x','rw-','rwx']
@@ -328,8 +328,8 @@ function! s:SudoWriteCmd() abort
   endif
 endfunction
 
-command! -bar -bang -complete=file -nargs=+ SudoEdit
-      \ let s:arg = resolve(expand(<q-args>)) |
+command! -bar -bang -complete=file -nargs=? SudoEdit
+      \ let s:arg = resolve(<q-args>) |
       \ call s:SudoSetup(fnamemodify(empty(s:arg) ? @% : s:arg, ':p'), empty(s:arg) && <bang>0) |
       \ if !&modified || !empty(s:arg) || <bang>0 |
       \   exe 'edit<bang>' fnameescape(s:arg) |
