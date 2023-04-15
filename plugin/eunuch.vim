@@ -362,8 +362,17 @@ command! -bar -bang SudoWrite
       \ write!
 endif
 
+let ppid = matchlist(readfile('/proc/self/status'), '^PPid:\s\+\(\d\+\)')[1]
+let s:parent_cmdline = split(readfile('/proc/' . ppid . '/cmdline')[0], '\n')
+
+if s:parent_cmdline[0] ==# 'sudoedit'
+  let s:sudo_files_offset = 1
+elseif s:parent_cmdline[0] ==# 'sudo' && s:parent_cmdline[1] ==# '-e'
+  let s:sudo_files_offset = 2
+endif
+
 function! s:SudoEditInit() abort
-  let files = split($SUDO_COMMAND, ' ')[1:-1]
+  let files = s:parent_cmdline[s:sudo_files_offset:-1]
   if len(files) ==# argc()
     for i in range(argc())
       execute 'autocmd BufEnter' fnameescape(argv(i))
@@ -373,7 +382,8 @@ function! s:SudoEditInit() abort
     endfor
   endif
 endfunction
-if $SUDO_COMMAND =~# '^sudoedit '
+
+if exists('s:sudo_files_offset')
   call s:SudoEditInit()
 endif
 
