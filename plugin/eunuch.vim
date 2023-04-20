@@ -362,13 +362,15 @@ command! -bar -bang SudoWrite
       \ write!
 endif
 
-let ppid = matchlist(readfile('/proc/self/status'), '^PPid:\s\+\(\d\+\)')[1]
-let s:parent_cmdline = split(readfile('/proc/' . ppid . '/cmdline')[0], '\n')
+if has('linux')
+  let ppid = matchlist(readfile('/proc/self/status'), '^PPid:\s\+\(\d\+\)')[1]
+  let s:parent_cmdline = split(readfile('/proc/' . ppid . '/cmdline')[0], '\n')
 
-if s:parent_cmdline[0] ==# 'sudoedit'
-  let s:sudo_files_offset = 1
-elseif s:parent_cmdline[0] ==# 'sudo' && s:parent_cmdline[1] ==# '-e'
-  let s:sudo_files_offset = 2
+  if s:parent_cmdline[0] ==# 'sudoedit'
+    let s:sudo_files_offset = 1
+  elseif s:parent_cmdline[0] ==# 'sudo' && s:parent_cmdline[1] ==# '-e'
+    let s:sudo_files_offset = 2
+  endif
 endif
 
 function! s:SudoEditInit() abort
