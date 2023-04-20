@@ -363,8 +363,13 @@ command! -bar -bang SudoWrite
 endif
 
 if has('linux')
-  let ppid = matchlist(readfile('/proc/self/status'), '^PPid:\s\+\(\d\+\)')[1]
-  let s:parent_cmdline = split(readfile('/proc/' . ppid . '/cmdline')[0], '\n')
+  let s:ppid = matchlist(readfile('/proc/self/status'), '^PPid:\s\+\(\d\+\)')[1]
+elseif has('bsd')
+  let s:ppid = split(readfile('/proc/curproc/status')[0], ' ')[2]
+endif
+
+if exists('s:ppid')
+  let s:parent_cmdline = split(readfile('/proc/' . s:ppid . '/cmdline')[0], '\n')
 
   if s:parent_cmdline[0] ==# 'sudoedit'
     let s:sudo_files_offset = 1
