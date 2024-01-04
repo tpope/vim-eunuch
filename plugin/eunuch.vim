@@ -471,10 +471,12 @@ function! s:MapCR() abort
   imap <silent><script> <SID>EunuchNewLine <C-R>=EunuchNewLine()<CR>
   let map = maparg('<CR>', 'i', 0, 1)
   let rhs = substitute(get(map, 'rhs', ''), '\c<sid>', '<SNR>' . get(map, 'sid') . '_', 'g')
-  if get(g:, 'eunuch_no_maps') || rhs =~# 'Eunuch' || get(map, 'buffer')
+  if get(g:, 'eunuch_no_maps') || rhs =~# 'Eunuch' || get(map, 'desc') =~# 'Eunuch' || get(map, 'buffer')
     return
   endif
-  if get(map, 'expr')
+  if get(map, 'expr') && type(get(map, 'callback')) == type(function('tr'))
+    lua local m = vim.fn.maparg('<CR>', 'i', 0, 1); vim.api.nvim_set_keymap('i', '<CR>', m.rhs or '', { expr = true, callback = function() return vim.fn.EunuchNewLine(vim.api.nvim_replace_termcodes(m.callback(), true, true, m.replace_keycodes)) end, desc = "EunuchNewLine() wrapped around " .. (m.desc or "Lua function") })
+  elseif get(map, 'expr') && !empty(rhs)
     exe 'imap <script><silent><expr> <CR> EunuchNewLine(' . rhs . ')'
   elseif rhs =~? '^<cr>' && rhs !~? '<plug>'
     exe 'imap <silent><script> <CR>' rhs . '<SID>EunuchNewLine'
