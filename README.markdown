@@ -35,7 +35,7 @@ support:
 ## Contributing
 
 See the contribution guidelines for
-[pathogen.vim](https://github.com/tpope/vim-eunuch#readme).
+[vim-eunuch](https://github.com/tpope/vim-eunuch#readme).
 
 ## Self-Promotion
 
