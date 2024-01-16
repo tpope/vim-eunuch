@@ -475,7 +475,7 @@ function! s:MapCR() abort
     return
   endif
   if get(map, 'expr') && type(get(map, 'callback')) == type(function('tr'))
-    lua local m = vim.fn.maparg('<CR>', 'i', 0, 1); vim.api.nvim_set_keymap('i', '<CR>', m.rhs or '', { expr = true, callback = function() return vim.fn.EunuchNewLine(vim.api.nvim_replace_termcodes(m.callback(), true, true, m.replace_keycodes)) end, desc = "EunuchNewLine() wrapped around " .. (m.desc or "Lua function") })
+    lua local m = vim.fn.maparg('<CR>', 'i', 0, 1); vim.api.nvim_set_keymap('i', '<CR>', m.rhs or '', { expr = true, silent = true, callback = function() return vim.fn.EunuchNewLine(vim.api.nvim_replace_termcodes(m.callback(), true, true, m.replace_keycodes)) end, desc = "EunuchNewLine() wrapped around " .. (m.desc or "Lua function") })
   elseif get(map, 'expr') && !empty(rhs)
     exe 'imap <script><silent><expr> <CR> EunuchNewLine(' . rhs . ')'
   elseif rhs =~? '^<cr>' && rhs !~? '<plug>'
