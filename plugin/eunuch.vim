@@ -219,9 +219,25 @@ endfunction
 command! -bar -bang -nargs=+ Chmod
       \ exe s:Chmod(<bang>0, <f-args>)
 
-command! -bang -complete=file -nargs=+ Cfind   exe s:Grep(<q-bang>, <q-args>, 'find', '')
+function! s:FindPath() abort
+  if !has('win32')
+    return 'find'
+  elseif !exists('s:find_path')
+    let s:find_path = 'find'
+    for p in split($PATH, ';')
+      let prg_path = p ..'/find'
+      if p !~? '\<System32\>' && executable(prg_path)
+        let s:find_path = prg_path
+        break
+      endif
+    endfor
+  endif
+  return s:find_path
+endf
+
+command! -bang -complete=file -nargs=+ Cfind   exe s:Grep(<q-bang>, <q-args>, s:FindPath(), '')
 command! -bang -complete=file -nargs=+ Clocate exe s:Grep(<q-bang>, <q-args>, 'locate', '')
-command! -bang -complete=file -nargs=+ Lfind   exe s:Grep(<q-bang>, <q-args>, 'find', 'l')
+command! -bang -complete=file -nargs=+ Lfind   exe s:Grep(<q-bang>, <q-args>, s:FindPath(), 'l')
 command! -bang -complete=file -nargs=+ Llocate exe s:Grep(<q-bang>, <q-args>, 'locate', 'l')
 function! s:Grep(bang, args, prg, type) abort
   let grepprg = &l:grepprg
