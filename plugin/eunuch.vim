@@ -362,12 +362,7 @@ command! -bar -bang SudoWrite
       \ write!
 endif
 
-command! -bar -nargs=? Wall
-      \ if empty(<q-args>) |
-      \   call s:Wall() |
-      \ else |
-      \   call system('wall', <q-args>) |
-      \ endif
+command! -bar Wall call s:Wall()
 if exists(':W') !=# 2
   command! -bar W Wall
 endif
