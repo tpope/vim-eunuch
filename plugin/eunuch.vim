@@ -485,14 +485,13 @@ function! s:MapCR() abort
   if get(g:, 'eunuch_no_maps') || rhs =~# 'Eunuch' || get(map, 'desc') =~# 'Eunuch' || get(map, 'buffer')
     return
   endif
+  let imap = get(map, 'script', rhs !~? '<plug>') || get(map, 'noremap') ? 'imap <script>' : 'imap'
   if get(map, 'expr') && type(get(map, 'callback')) == type(function('tr'))
     lua local m = vim.fn.maparg('<CR>', 'i', 0, 1); vim.api.nvim_set_keymap('i', '<CR>', m.rhs or '', { expr = true, silent = true, callback = function() return vim.fn.EunuchNewLine(vim.api.nvim_replace_termcodes(m.callback(), true, true, m.replace_keycodes)) end, desc = "EunuchNewLine() wrapped around " .. (m.desc or "Lua function") })
   elseif get(map, 'expr') && !empty(rhs)
-    exe 'imap <script><silent><expr> <CR> EunuchNewLine(' . rhs . ')'
-  elseif rhs =~? '^<cr>' && rhs !~? '<plug>'
-    exe 'imap <silent><script> <CR>' rhs . '<SID>EunuchNewLine'
+    exe imap '<silent><expr> <CR> EunuchNewLine(' . rhs . ')'
   elseif rhs =~? '^<cr>' || rhs =~# '<[Pp]lug>\w\+CR'
-    exe 'imap <silent> <CR>' rhs . '<SID>EunuchNewLine'
+    exe imap '<silent> <CR>' rhs . '<SID>EunuchNewLine'
   elseif empty(rhs)
     imap <script><silent><expr> <CR> EunuchNewLine("<Bslash>r")
   endif
