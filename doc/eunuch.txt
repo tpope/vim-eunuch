@@ -102,32 +102,32 @@ DELETION                                        *eunuch-deletion*
 
                                                 *g:Eunuch_rm*
                                                 *g:Eunuch_rmdir*
-You can customize how |eunuch-commands| will delete files by setting your own
-value for `g:Eunuch_rm`. You can also set `g:Eunuch_rmdir` to customize how
-directories will be deleted.
+You can customize how |eunuch-commands| will delete files and directories by
+setting your own values for the global variables `g:Eunuch_rm` and
+`g:Eunuch_rmdir` respectively.
 
-By default, eunuch uses Vim's |delete()| function to delete files.
->
-  let g:Eunuch_rm = {path -> delete(path)}
-  let g:Eunuch_rmdir = {path -> delete(path, 'd')}
-<
-You can use a string, a list, or a |Funcref|.  A string is interpreted as the
-name of a system command, such that
+You can specify a String, a List, or a |Funcref|.  A string will be called as
+a system command with the file's path as its only argument:
 >
   let g:Eunuch_rm = 'trash'
 <
-will make deletions call the `trash` system command with the file's path as
-its only argument.  Lists will be interpreted as the name of a system command,
-and arguments to pass to it.  The file's path will be the final argument.
+Lists will be interpreted as the name of a system command, and arguments to
+pass to it.  The file's path will be the final argument:
 >
   let g:Eunuch_rmdir = ['rm', '-rf']
 <
-A |Funcref| will let you perform more customized operations.
+A |Funcref| will let you perform more customized operations:
 >
   function! MyDelete(path)
       echo "deleting " . a:path
   endfunction
   let g:Eunuch_rm = function('MyDelete')
+<
+Eunuch uses Vim's |delete()| function by default.  The default configuration
+is:
+>
+  let g:Eunuch_rm = {path -> delete(path)}
+  let g:Eunuch_rmdir = {path -> delete(path, 'd')}
 <
 
 PASSIVE BEHAVIORS                               *eunuch-passive*
