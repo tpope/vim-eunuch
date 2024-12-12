@@ -493,7 +493,7 @@ function! s:MapCR() abort
   elseif rhs =~? '^\%(<c-\]>\)\=<cr>' || rhs =~# '<[Pp]lug>\w\+CR'
     exe imap '<silent> <CR>' rhs . '<SID>EunuchNewLine'
   elseif empty(rhs)
-    imap <script><silent><expr> <CR> EunuchNewLine("<Bslash>r")
+    imap <script><silent><expr> <CR> EunuchNewLine("<Bslash>035<Bslash>r")
   endif
 endfunction
 call s:MapCR()
