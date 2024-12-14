@@ -21,6 +21,20 @@ function! s:fcall(fn, path, ...) abort
   return call(s:ffn(a:fn, a:path), [a:path] + a:000)
 endfunction
 
+let g:Eunuch_rm = {path -> delete(path)}
+let g:Eunuch_rmdir = {path -> delete(path, 'd')}
+
+function! s:use_configured(fn, path) abort
+  if type(a:fn) == v:t_string
+    call system([a:fn, a:path])
+    return v:shell_error
+  elseif type(a:fn) == v:t_list
+    call system(a:fn + [a:path])
+    return v:shell_error
+  endif
+  return a:fn(a:path)
+endfunction
+
 function! s:AbortOnError(cmd) abort
   try
     exe a:cmd
@@ -42,11 +56,11 @@ function! EunuchRename(src, dst) abort
     let fn = s:ffn('writefile', a:dst)
     let copy = call(fn, [s:fcall('readfile', a:src, 'b'), a:dst])
     if copy == 0
-      let delete = s:fcall('delete', a:src)
+      let delete = s:use_configured(g:Eunuch_rm, a:src)
       if delete == 0
         return 0
       else
-        call s:fcall('delete', a:dst)
+        call s:use_configured(g:Eunuch_rm, a:dst)
         return -1
       endif
     endif
@@ -69,9 +83,9 @@ endfunction
 
 function! s:Delete(path) abort
   if has('patch-7.4.1107') && isdirectory(a:path)
-    return delete(a:path, 'd')
+    return s:use_configured(g:Eunuch_rmdir, a:path)
   else
-    return s:fcall('delete', a:path)
+    return s:use_configured(g:Eunuch_rm, a:path)
   endif
 endfunction
 
