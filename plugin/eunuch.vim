@@ -163,8 +163,8 @@ endfunction
 
 command! -bar -nargs=1 -bang -complete=file Move exe s:Move(<bang>0, <q-args>)
 
-" ~/f, $VAR/f, /f, C:/f, url://f, ./f, ../f
-let s:absolute_pat = '^[~$]\|^' . s:slash_pat . '\|^\a\+:\|^\.\.\=\%(' . s:slash_pat . '\|$\)'
+" ~/f, $VAR/f, /f, C:/f, url://f
+let s:absolute_pat = '^[~$]\|^' . s:slash_pat . '\|^\a\+:'
 
 function! s:RenameComplete(A, L, P) abort
   let sep = s:separator()
