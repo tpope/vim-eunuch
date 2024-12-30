@@ -12,15 +12,18 @@ a buffer and the underlying file at the same time.  Load a `find` or a
 
 COMMANDS                                        *eunuch-commands*
 
+
                                         *eunuch-:Remove* *eunuch-:Unlink*
-:Remove[!]              Delete the file from disk and reload the buffer.  If
-:Unlink[!]              you change your mind, the contents of the buffer can
-                        be restored with |u| (see 'undoreload').
+:Remove[!]              Delete the file using the method specified by
+:Unlink[!]              |g:Eunuch_rm| and reload the buffer.  If you change
+                        your mind, the contents of the buffer can be restored
+                        with |u| (see 'undoreload').
 
                                                 *eunuch-:Delete*
-:Delete[!]              Delete the file from disk and |:bdelete| the buffer.
-                        This cannot be undone, and thus a `!` is required to
-                        delete non-empty files.
+:Delete[!]              Delete the file using the method specified by
+                        |g:Eunuch_rm| and |:bdelete| the buffer.  This cannot
+                        be undone, and thus a `!` is required to delete
+                        non-empty files.
 
                                                 *eunuch-:Copy*
 :Copy[!] {file}         Small wrapper around |:saveas|.  Parent directories
@@ -94,6 +97,38 @@ COMMANDS                                        *eunuch-commands*
                         with watchr or guard).  Furthermore, it handily
                         doubles as a safe fallback for people who, like me,
                         accidentally type :W instead of :w a lot.
+
+DELETION                                        *eunuch-deletion*
+
+                                                *g:Eunuch_rm*
+                                                *g:Eunuch_rmdir*
+You can customize how |eunuch-commands| will delete files and directories by
+setting your own values for the global variables `g:Eunuch_rm` and
+`g:Eunuch_rmdir` respectively.
+
+You can specify a String, a List, or a |Funcref|.  A string will be called as
+a system command with the file's path as its only argument:
+>
+  let g:Eunuch_rm = 'trash'
+<
+Lists will be interpreted as the name of a system command, and arguments to
+pass to it.  The file's path will be the final argument:
+>
+  let g:Eunuch_rmdir = ['rm', '-rf']
+<
+A |Funcref| will let you perform more customized operations:
+>
+  function! MyDelete(path)
+      echo "deleting " . a:path
+  endfunction
+  let g:Eunuch_rm = function('MyDelete')
+<
+Eunuch uses Vim's |delete()| function by default.  The default configuration
+is:
+>
+  let g:Eunuch_rm = {path -> delete(path)}
+  let g:Eunuch_rmdir = {path -> delete(path, 'd')}
+<
 
 PASSIVE BEHAVIORS                               *eunuch-passive*
 
