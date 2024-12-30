@@ -362,6 +362,38 @@ command! -bar -bang SudoWrite
       \ write!
 endif
 
+if has('linux')
+  let s:ppid = matchlist(readfile('/proc/self/status'), '^PPid:\s\+\(\d\+\)')[1]
+elseif has('bsd')
+  let s:ppid = split(readfile('/proc/curproc/status')[0], ' ')[2]
+endif
+
+if exists('s:ppid')
+  let s:parent_cmdline = split(readfile('/proc/' . s:ppid . '/cmdline')[0], '\n')
+
+  if s:parent_cmdline[0] ==# 'sudoedit'
+    let s:sudo_files_offset = 1
+  elseif s:parent_cmdline[0] ==# 'sudo' && s:parent_cmdline[1] ==# '-e'
+    let s:sudo_files_offset = 2
+  endif
+endif
+
+function! s:SudoEditInit() abort
+  let files = s:parent_cmdline[s:sudo_files_offset:-1]
+  if len(files) ==# argc()
+    for i in range(argc())
+      execute 'autocmd BufEnter' fnameescape(argv(i))
+            \ 'if empty(&filetype) || &filetype ==# "conf"'
+            \ '|doautocmd filetypedetect BufReadPost' fnameescape(files[i])
+            \ '|endif'
+    endfor
+  endif
+endfunction
+
+if exists('s:sudo_files_offset')
+  call s:SudoEditInit()
+endif
+
 command! -bar Wall call s:Wall()
 if exists(':W') !=# 2
   command! -bar W Wall
