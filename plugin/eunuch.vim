@@ -278,8 +278,68 @@ function! s:SilentSudoCmd(editor) abort
   endif
 endfunction
 
+" Generate doas command for privilege escalation
+" Note: doas doesn't have -e (sudoedit) equivalent, so we use direct commands
+function! s:SilentDoasCmd(editor) abort
+  let cmd = 'env DOAS_EDITOR=' . a:editor . ' VISUAL=' . a:editor . ' doas'
+  let local_nvim = has('nvim') && len($DISPLAY . $SECURITYSESSIONID . $TERM_PROGRAM)
+  if !local_nvim && (!has('gui_running') || &guioptions =~# '!')
+    redraw
+    echo
+    return ['silent', cmd]
+  else
+    return [local_nvim ? 'silent' : '', cmd]
+  endif
+endfunction
+
+" Unified privilege command generator that selects doas or sudo
+function! s:SilentPrivCmd(editor) abort
+  let priv_cmd = s:DetectPrivCmd()
+  if priv_cmd ==# 'doas'
+    return s:SilentDoasCmd(a:editor)
+  elseif priv_cmd ==# 'sudo'
+    return s:SilentSudoCmd(a:editor)
+  else
+    return ['', '']
+  endif
+endfunction
+
 augroup eunuch_sudo
 augroup END
+
+augroup eunuch_doas
+augroup END
+
+" Unified setup function that works with both doas and sudo
+function! s:PrivSetup(file, resolve_symlink, priv_cmd) abort
+  let priv_cmd = a:priv_cmd
+  if empty(priv_cmd)
+    let priv_cmd = s:DetectPrivCmd()
+  endif
+  if empty(priv_cmd)
+    echoerr 'Neither doas nor sudo is available'
+    return
+  endif
+  let file = a:file
+  if a:resolve_symlink && getftype(file) ==# 'link'
+    let file = resolve(file)
+    if file !=# a:file
+      silent keepalt exe 'file' fnameescape(file)
+    endif
+  endif
+  let file = substitute(file, s:slash_pat, '/', 'g')
+  if file !~# '^\a\+:\|^/'
+    let file = substitute(getcwd(), s:slash_pat, '/', 'g') . '/' . file
+  endif
+  let augroup = priv_cmd ==# 'doas' ? 'eunuch_doas' : 'eunuch_sudo'
+  if !filereadable(file) && !exists('#' . augroup . '#BufReadCmd#'.fnameescape(file))
+    execute 'autocmd' augroup 'BufReadCmd' fnameescape(file) 'exe s:PrivReadCmd(' . string(priv_cmd) . ')'
+  endif
+  if !filewritable(file) && !exists('#' . augroup . '#BufWriteCmd#'.fnameescape(file))
+    execute 'autocmd' augroup 'BufReadPost' fnameescape(file) 'set noreadonly'
+    execute 'autocmd' augroup 'BufWriteCmd' fnameescape(file) 'exe s:PrivWriteCmd(' . string(priv_cmd) . ')'
+  endif
+endfunction
 
 function! s:SudoSetup(file, resolve_symlink) abort
   let file = a:file
@@ -304,44 +364,127 @@ endfunction
 
 let s:error_file = tempname()
 
-function! s:SudoError() abort
+" Detect available privilege escalation command (doas or sudo)
+" Returns 'doas' or 'sudo' based on availability and user preference
+function! s:DetectPrivCmd() abort
+  " User preference: g:eunuch_use_doas
+  if get(g:, 'eunuch_use_doas', 0) && executable('doas')
+    return 'doas'
+  endif
+
+  " Auto-detection: prefer doas on BSD systems or when doas.conf exists
+  if has('bsd') || has('osxdarwin') || filereadable('/etc/doas.conf')
+    if executable('doas')
+      return 'doas'
+    endif
+  endif
+
+  " Default to sudo if available
+  if executable('sudo')
+    return 'sudo'
+  endif
+
+  " Fallback to doas if sudo not available
+  if executable('doas')
+    return 'doas'
+  endif
+
+  return ''
+endfunction
+
+function! s:PrivError() abort
+  return s:PrivError()
+endfunction
+
+" Returns error message from privilege escalation command
+function! s:PrivError() abort
   let error = join(readfile(s:error_file), " | ")
-  if error =~# '^sudo' || v:shell_error
-    return len(error) ? error : 'Error invoking sudo'
+  let priv_cmd = s:DetectPrivCmd()
+  if error =~# '^\%(sudo\|doas\)' || v:shell_error
+    let cmd_name = empty(priv_cmd) ? 'privilege escalation' : priv_cmd
+    return len(error) ? error : 'Error invoking ' . cmd_name
   else
     return error
   endif
 endfunction
 
 function! s:SudoReadCmd() abort
+  return s:PrivReadCmd('sudo')
+endfunction
+
+function! s:SudoWriteCmd() abort
+  return s:PrivWriteCmd('sudo')
+endfunction
+
+" Unified read command using privilege escalation (doas or sudo)
+function! s:PrivReadCmd(priv_cmd) abort
   if &shellpipe =~ '|&'
-    return 'echoerr ' . string('eunuch.vim: no sudo read support for csh')
+    return 'echoerr ' . string('eunuch.vim: no ' . a:priv_cmd . ' read support for csh')
+  endif
+  let priv_cmd = empty(a:priv_cmd) ? s:DetectPrivCmd() : a:priv_cmd
+  if empty(priv_cmd)
+    return 'echoerr ' . string('Neither doas nor sudo is available')
   endif
   silent %delete_
   silent doautocmd <nomodeline> BufReadPre
-  let [silent, cmd] = s:SilentSudoCmd('cat')
-  execute silent 'read !' . cmd . ' "%" 2> ' . s:error_file
+  if priv_cmd ==# 'doas'
+    " doas doesn't have -e flag, use direct cat command
+    let local_nvim = has('nvim') && len($DISPLAY . $SECURITYSESSIONID . $TERM_PROGRAM)
+    if !local_nvim && (!has('gui_running') || &guioptions =~# '!')
+      redraw
+      echo
+    endif
+    execute 'silent read !doas cat "%" 2> ' . s:error_file
+  else
+    let [silent, cmd] = s:SilentSudoCmd('cat')
+    execute silent 'read !' . cmd . ' "%" 2> ' . s:error_file
+  endif
   let exit_status = v:shell_error
   silent 1delete_
   setlocal nomodified
   if exit_status
-    return 'echoerr ' . string(s:SudoError())
+    return 'echoerr ' . string(s:PrivError())
   else
     return 'silent doautocmd BufReadPost'
   endif
 endfunction
 
-function! s:SudoWriteCmd() abort
+" Unified write command using privilege escalation (doas or sudo)
+function! s:PrivWriteCmd(priv_cmd) abort
+  let priv_cmd = empty(a:priv_cmd) ? s:DetectPrivCmd() : a:priv_cmd
+  if empty(priv_cmd)
+    return 'echoerr ' . string('Neither doas nor sudo is available')
+  endif
   silent doautocmd <nomodeline> BufWritePre
-  let [silent, cmd] = s:SilentSudoCmd(shellescape('sh -c cat>"$0"'))
-  execute silent 'write !' . cmd . ' "%" 2> ' . s:error_file
-  let error = s:SudoError()
+  if priv_cmd ==# 'doas'
+    " doas doesn't have -e flag, use tee to write the file
+    let local_nvim = has('nvim') && len($DISPLAY . $SECURITYSESSIONID . $TERM_PROGRAM)
+    if !local_nvim && (!has('gui_running') || &guioptions =~# '!')
+      redraw
+      echo
+    endif
+    execute 'silent write !doas tee "%" > /dev/null 2> ' . s:error_file
+  else
+    let [silent, cmd] = s:SilentSudoCmd(shellescape('sh -c cat>"$0"'))
+    execute silent 'write !' . cmd . ' "%" 2> ' . s:error_file
+  endif
+  let error = s:PrivError()
   if !empty(error)
     return 'echoerr ' . string(error)
   else
     setlocal nomodified
     return 'silent doautocmd <nomodeline> BufWritePost'
   endif
+endfunction
+
+" Doas-specific read command
+function! s:DoasReadCmd() abort
+  return s:PrivReadCmd('doas')
+endfunction
+
+" Doas-specific write command
+function! s:DoasWriteCmd() abort
+  return s:PrivWriteCmd('doas')
 endfunction
 
 command! -bar -bang -complete=file -nargs=? SudoEdit
@@ -358,6 +501,14 @@ command! -bar -bang -complete=file -nargs=? SudoEdit
 if exists(':SudoWrite') != 2
 command! -bar -bang SudoWrite
       \ call s:SudoSetup(expand('%:p'), <bang>0) |
+      \ setlocal noreadonly |
+      \ write!
+endif
+
+" DoasWrite: Write a file using doas for privilege escalation
+if exists(':DoasWrite') != 2
+command! -bar -bang DoasWrite
+      \ call s:PrivSetup(expand('%:p'), <bang>0, 'doas') |
       \ setlocal noreadonly |
       \ write!
 endif

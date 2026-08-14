@@ -87,6 +87,33 @@ COMMANDS                                        *eunuch-commands*
                         with the sudoedit_follow and sudoedit_checkdir sudo
                         options, respectively.
 
+                                                *eunuch-:DoasWrite*
+:DoasWrite              Use doas to write the file to disk.  This is the
+                        equivalent of :SudoWrite but uses `doas` instead of
+                        `sudo`.  Handy on systems where doas is preferred.
+
+DOAS SUPPORT                                    *eunuch-doas*
+
+Eunuch supports `doas` as an alternative to `sudo` for privilege escalation.
+doas is a minimal and secure replacement for sudo, particularly popular on
+OpenBSD and other BSD systems.
+
+By default, eunuch auto-detects which privilege escalation tool to use:
+- On BSD systems or when `/etc/doas.conf` exists, doas is preferred
+- Otherwise, sudo is used if available
+- Falls back to the other tool if the preferred one is not found
+
+                                                *g:eunuch_use_doas*
+To prefer doas over sudo:
+>
+        let g:eunuch_use_doas = 1
+<
+Note: doas differs from sudo in that:
+- It uses `/etc/doas.conf` for configuration (simpler than sudoers)
+- It doesn't have a `-S` flag for reading password from stdin
+- It uses `-n` for non-interactive mode (same as sudo)
+- The `persist` option in doas.conf can cache authentication
+
                                                 *eunuch-:Wall* *eunuch-:W*
 :Wall                   Like |:wall|, but for windows rather than buffers.
 :W                      It also writes files that haven't changed, which is
